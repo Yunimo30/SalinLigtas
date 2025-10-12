@@ -213,3 +213,32 @@ body{
   margin-top: 10px;
 }
 
+
+
+/* --- Mobile Responsiveness --- */
+@media (max-width: 768px) {
+  .container {
+    /* Switch from 3 columns to a single vertical column */
+    grid-template-columns: 1fr;
+    /* Allow the container to grow taller than the screen to fit content */
+    height: auto;
+    padding: 8px; /* Slightly reduce padding for small screens */
+    gap: 8px;
+  }
+
+  .card {
+    /* Prevent cards from overflowing horizontally */
+    overflow-x: hidden;
+  }
+
+  #map {
+    /* Give the map a fixed, usable height on mobile */
+    height: 400px;
+    width: 100%; /* Ensure map takes full width of the card */
+  }
+
+  .results canvas {
+    /* Adjust chart height for mobile */
+    height: 180px;
+  }
+}
