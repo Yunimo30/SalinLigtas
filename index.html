@@ -26,7 +26,7 @@
         <label for="campusSelect">Select Campus</label>
         <select id="campusSelect"></select>
 
-        <label for="intensity">Rainfall intensity (mm/hr)</label>
+        <label for="intensity">Rainfall intensity (mm/hr) <span id="intensityHelp" class="help-icon" title="Click for guidelines">?</span></label>
         <input id="intensity" type="number" value="30" min="0" max="200" />
 
         <label for="duration">Duration (minutes)</label>
@@ -54,6 +54,7 @@
 
         <div class="unit-toggle">
           <button id="unitToggle" class="run-btn">Units: cm</button>
+          <button id="howToUseBtn" class="run-btn">How to Use</button>
         </div>
       </div>
 
@@ -75,6 +76,28 @@
 
     <!-- CENTER: Map (bounded frame) -->
     <main class="map-panel card">
+      <div id="suspensionBanner" class="suspension-banner">
+        <div class="banner-tile" id="tileFloodLevel">
+          <div class="tile-label">Flood Level</div>
+          <div class="tile-value">Ankle Level</div>
+        </div>
+        <div class="banner-tile" id="tileIntensity">
+          <div class="tile-label">Intensity</div>
+          <div class="tile-value">0 mm/hr</div>
+        </div>
+        <div class="banner-tile" id="tileOnset">
+          <div class="tile-label">Onset</div>
+          <div class="tile-value">N/A</div>
+        </div>
+        <div class="banner-tile" id="tileRoutes">
+          <div class="tile-label">Passable Routes</div>
+          <div class="tile-value">0/0</div>
+        </div>
+        <div class="banner-tile" id="tileStatus">
+          <div class="tile-label">Campus Status</div>
+          <div class="tile-value">Normal</div>
+        </div>
+      </div>
       <div id="map" aria-label="Campus map"></div>
     </main>
 
@@ -105,6 +128,8 @@
         <div><strong>Height Comparison</strong>: <span id="kpiHeightComparison">--</span></div>
       </div>
 
+      <button id="hotlinesBtn" class="run-btn" style="margin-top:10px;">Emergency Hotlines</button>
+
       <h3>Safe Route Identifier</h3>
       <div id="safestRoutes"></div>
 
@@ -114,6 +139,58 @@
 
       <div id="routeSummary" style="display:none;"></div>
     </aside>
+  </div>
+
+  <!-- Emergency Hotlines Modal -->
+  <div id="hotlinesModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Emergency Hotlines</h2>
+      <div id="hotlinesContent"></div>
+    </div>
+  </div>
+
+  <!-- Tutorial Modal -->
+  <div id="tutorialModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>How to Use the Campus Flood Simulator</h2>
+      <div id="tutorialContent">
+        <div class="tutorial-step" id="step1">
+          <h3>Step 1: Select your campus</h3>
+          <p>Choose the campus you want to simulate from the dropdown menu. This will load the map and historical data for that location.</p>
+          <button class="tutorial-next">Next</button>
+        </div>
+        <div class="tutorial-step" id="step2" style="display:none;">
+          <h3>Step 2: Enter rainfall intensity or choose a scenario</h3>
+          <p>Input the rainfall intensity in mm/hr, or use the preset buttons for Light, Moderate, or Heavy scenarios. You can also click the "?" icon for rainfall guidelines.</p>
+          <button class="tutorial-prev">Previous</button>
+          <button class="tutorial-next">Next</button>
+        </div>
+        <div class="tutorial-step" id="step3" style="display:none;">
+          <h3>Step 3: Click 'Run Simulation' to see the results</h3>
+          <p>Adjust duration and pattern if needed, then click "Run Simulation". The map will show flood risks, and the results panel will display detailed information.</p>
+          <button class="tutorial-prev">Previous</button>
+          <button class="tutorial-done">Got it!</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rainfall Guidelines Modal -->
+  <div id="guidelinesModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Rainfall Intensity Guidelines</h2>
+      <div id="guidelinesContent">
+        <ul>
+          <li><strong>Light Rain:</strong> 5-10 mm/hr</li>
+          <li><strong>Moderate Rain:</strong> 15-30 mm/hr</li>
+          <li><strong>Heavy Thunderstorm:</strong> 40-60+ mm/hr</li>
+        </ul>
+        <p>These are general guidelines. Actual intensities can vary by location and weather conditions.</p>
+      </div>
+    </div>
   </div>
 
   <script src="data.js"></script>

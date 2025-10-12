@@ -8,6 +8,9 @@ window.addEventListener("DOMContentLoaded", () => {
   // Street layer group
   const streetLayer = L.layerGroup().addTo(map);
 
+  // Path layer for safe routes
+  const pathLayer = L.layerGroup().addTo(map);
+
   // Suspension overlay
   const overlay = document.createElement('div');
   overlay.id = 'suspensionOverlay';
@@ -154,8 +157,14 @@ window.addEventListener("DOMContentLoaded", () => {
     });
     html += '</ol>';
 
+    // Add button for pathfinding
+    html += '<br><button id="findPathBtn" class="run-btn">Find Path to Safe Zone</button>';
+
     safestRoutesDiv.innerHTML = html;
     safestRoutesDiv.style.display = 'block';
+
+    // Attach event listener to the button
+    document.getElementById("findPathBtn").addEventListener("click", findPathToSafeZone);
   }
 
   // Reset selection button or clear
@@ -240,8 +249,10 @@ window.addEventListener("DOMContentLoaded", () => {
       overlay.style.display = 'block';
     }
 
-    // Clear previous street markers and labels
-    streetLayer.clearLayers();
+  // Clear previous street markers and labels
+  streetLayer.clearLayers();
+
+  pathLayer.clearLayers();
 
     // update table rows (per-street)
     floodTbody.innerHTML = "";
@@ -268,7 +279,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
       // estimate onset: approximate minutes until flood ~ proportional inverse to intensity
       // if intensity is zero, onset is infinity; otherwise rough estimate:
-      const onset = intensity > 0 ? Math.max(5, Math.round((cls.css==="green"?999: (50 / (intensity/10)) * street.sensitivity))) : Infinity;
+      const onset = intensity > 0 ? Math.max(5, Math.round((50 / (intensity/10)) * street.sensitivity)) : Infinity;
       if (onset < earliestOnsetMin) earliestOnsetMin = onset;
 
       const descriptiveLabel = getDescriptiveRisk(peak);
@@ -334,18 +345,60 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
     // Suspension risk
-    const suspensionRisk = (impassableCount / campus.streets.length > 0.3) ? "Recommend Suspension" : "Low Risk";
+    const suspensionMessage = (impassableCount / campus.streets.length > 0.3) ? "CLASS SUSPENSION RECOMMENDED" : "Classes On Track";
+
+    // Update banner tiles
+    const tileFloodLevel = document.getElementById('tileFloodLevel');
+    const tileIntensity = document.getElementById('tileIntensity');
+    const tileOnset = document.getElementById('tileOnset');
+    const tileRoutes = document.getElementById('tileRoutes');
+    const tileStatus = document.getElementById('tileStatus');
+
+    // Average flood level
+    const avgFloodLevel = heights.reduce((sum, h) => sum + h, 0) / heights.length;
+    const floodDesc = getDescriptiveRisk(avgFloodLevel);
+    const floodClass = avgFloodLevel < 20 ? 'safe' : avgFloodLevel < 50 ? 'caution' : 'impassable';
+    const floodValue = document.querySelector('#tileFloodLevel .tile-value');
+    floodValue.textContent = floodDesc;
+    floodValue.className = `tile-value ${floodClass}`;
+
+    // Current intensity
+    const intensityClass = intensity < 10 ? 'safe' : intensity < 30 ? 'caution' : 'impassable';
+    const intensityValue = document.querySelector('#tileIntensity .tile-value');
+    intensityValue.textContent = `${intensity.toFixed(0)} mm/hr`;
+    intensityValue.className = `tile-value ${intensityClass}`;
+
+    // Time to onset
+    const onsetClass = isFinite(earliestOnsetMin) && earliestOnsetMin < 30 ? 'caution' : isFinite(earliestOnsetMin) && earliestOnsetMin < 10 ? 'impassable' : 'safe';
+    const onsetText = isFinite(earliestOnsetMin) ? `${earliestOnsetMin} min` : "N/A";
+    const onsetValue = document.querySelector('#tileOnset .tile-value');
+    onsetValue.textContent = onsetText;
+    onsetValue.className = `tile-value ${onsetClass}`;
+
+    // Passable routes
+    const passableCount = counts.safe + counts.caution;
+    const routesClass = passableCount < campus.streets.length * 0.5 ? 'impassable' : passableCount < campus.streets.length * 0.8 ? 'caution' : 'safe';
+    const routesValue = document.querySelector('#tileRoutes .tile-value');
+    routesValue.textContent = `${passableCount}/${campus.streets.length}`;
+    routesValue.className = `tile-value ${routesClass}`;
+
+    // Campus status
+    const statusClass = counts.impassable > 0 ? 'impassable' : counts.caution > 0 ? 'caution' : 'safe';
+    const statusText = counts.impassable > 0 ? 'Critical' : counts.caution > 0 ? 'Caution' : 'Normal';
+    const statusValue = document.querySelector('#tileStatus .tile-value');
+    statusValue.textContent = statusText;
+    statusValue.className = `tile-value ${statusClass}`;
 
     // Update overlay
-    overlay.innerHTML = `Suspension: ${suspensionRisk}`;
-    overlay.style.backgroundColor = suspensionRisk.includes('Recommend') ? 'rgba(239,68,68,0.8)' : 'rgba(34,197,94,0.8)';
+    overlay.innerHTML = `Suspension: ${suspensionMessage}`;
+    overlay.style.backgroundColor = suspensionMessage.includes('RECOMMENDED') ? 'rgba(239,68,68,0.8)' : 'rgba(34,197,94,0.8)';
     overlay.style.color = 'white';
     overlay.style.display = mode === 'forecast' ? 'block' : 'block';
 
     // KPIs
     kpiOnset.textContent = isFinite(earliestOnsetMin) ? earliestOnsetMin : "N/A";
     kpiRoutes.textContent = counts.safe + counts.caution; // Passable = safe + caution
-    kpiSuspension.textContent = suspensionRisk;
+    kpiSuspension.textContent = suspensionMessage;
 
     // Alerts
     if (counts.impassable > 0) {
@@ -362,8 +415,8 @@ window.addEventListener("DOMContentLoaded", () => {
     if (window._campusBuffer) { map.removeLayer(window._campusBuffer); window._campusBuffer = null; }
 
     // compute an overall average height to decide buffer color
-    const avgHeight = (campus.streets.reduce((s, st) => s + expectedFloodHeightCm(intensity, duration, st.sensitivity, campus), 0) / campus.streets.length);
-    const overallCls = classifyByHeight(avgHeight);
+    const overallAvgHeight = (campus.streets.reduce((s, st) => s + expectedFloodHeightCm(intensity, duration, st.sensitivity, campus), 0) / campus.streets.length);
+    const overallCls = classifyByHeight(overallAvgHeight);
 
     window._campusBuffer = L.circle(campus.coords, {
       radius: 300, // meters
@@ -627,6 +680,272 @@ window.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  // Emergency Hotlines Modal
+  const hotlinesModal = document.getElementById("hotlinesModal");
+  const hotlinesBtn = document.getElementById("hotlinesBtn");
+  const closeBtn = document.querySelector(".close");
+  const hotlinesContent = document.getElementById("hotlinesContent");
+
+  hotlinesBtn.addEventListener("click", () => {
+    const campusIndex = parseInt(campusSelect.value);
+    const campus = campuses[campusIndex];
+    const localKey = campus.localHotlinesKey || "manila"; // Default to manila if not specified
+
+    let content = "<h3>National Emergency Hotlines</h3><ul>";
+    emergencyHotlines.national.forEach(hotline => {
+      content += `<li><strong>${hotline.name}:</strong> ${hotline.number}</li>`;
+    });
+    content += "</ul>";
+
+    content += `<h3>Local Hotlines (${localKey.charAt(0).toUpperCase() + localKey.slice(1)})</h3><ul>`;
+    emergencyHotlines.local[localKey].forEach(hotline => {
+      content += `<li><strong>${hotline.name}:</strong> ${hotline.number}</li>`;
+    });
+    content += "</ul>";
+
+    hotlinesContent.innerHTML = content;
+    hotlinesModal.style.display = "block";
+  });
+
+  closeBtn.addEventListener("click", () => {
+    hotlinesModal.style.display = "none";
+  });
+
+  window.addEventListener("click", (event) => {
+    if (event.target === hotlinesModal) {
+      hotlinesModal.style.display = "none";
+    }
+  });
+
+  // Haversine distance function
+  function haversine(lat1, lng1, lat2, lng2) {
+    const R = 6371; // km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng/2) * Math.sin(dLng/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c * 1000; // meters
+  }
+
+  // How to Use button
+  const howToUseBtn = document.getElementById("howToUseBtn");
+  howToUseBtn.addEventListener("click", () => {
+    document.getElementById("tutorialModal").style.display = "block";
+  });
+
+  // Help icon for rainfall guidelines
+  const intensityHelp = document.getElementById("intensityHelp");
+  intensityHelp.addEventListener("click", () => {
+    document.getElementById("guidelinesModal").style.display = "block";
+  });
+
+  // Tutorial navigation
+  let currentStep = 1;
+  const totalSteps = 3;
+
+  document.querySelectorAll(".tutorial-next").forEach(btn => {
+    btn.addEventListener("click", () => {
+      if (currentStep < totalSteps) {
+        document.getElementById(`step${currentStep}`).style.display = "none";
+        currentStep++;
+        document.getElementById(`step${currentStep}`).style.display = "block";
+      }
+    });
+  });
+
+  document.querySelectorAll(".tutorial-prev").forEach(btn => {
+    btn.addEventListener("click", () => {
+      if (currentStep > 1) {
+        document.getElementById(`step${currentStep}`).style.display = "none";
+        currentStep--;
+        document.getElementById(`step${currentStep}`).style.display = "block";
+      }
+    });
+  });
+
+  document.querySelectorAll(".tutorial-done").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.getElementById("tutorialModal").style.display = "none";
+      currentStep = 1;
+      document.getElementById("step1").style.display = "block";
+      document.getElementById("step2").style.display = "none";
+      document.getElementById("step3").style.display = "none";
+    });
+  });
+
+  // Close modals
+  document.querySelectorAll(".close").forEach(closeBtn => {
+    closeBtn.addEventListener("click", () => {
+      document.getElementById("tutorialModal").style.display = "none";
+      document.getElementById("guidelinesModal").style.display = "none";
+      document.getElementById("hotlinesModal").style.display = "none";
+      currentStep = 1;
+      document.getElementById("step1").style.display = "block";
+      document.getElementById("step2").style.display = "none";
+      document.getElementById("step3").style.display = "none";
+    });
+  });
+
+  // Click outside modal to close
+  window.addEventListener("click", (event) => {
+    if (event.target === document.getElementById("tutorialModal")) {
+      document.getElementById("tutorialModal").style.display = "none";
+      currentStep = 1;
+      document.getElementById("step1").style.display = "block";
+      document.getElementById("step2").style.display = "none";
+      document.getElementById("step3").style.display = "none";
+    }
+    if (event.target === document.getElementById("guidelinesModal")) {
+      document.getElementById("guidelinesModal").style.display = "none";
+    }
+    if (event.target === document.getElementById("hotlinesModal")) {
+      document.getElementById("hotlinesModal").style.display = "none";
+    }
+  });
+
   // initial run on load
   runSimulation();
+
+  // Pathfinding to safe zone using A* on street graph
+  function findPathToSafeZone() {
+    const campusIndex = parseInt(campusSelect.value);
+    const campus = campuses[campusIndex];
+    const intensity = parseFloat(intensityInput.value) || 0;
+    const duration = parseFloat(durationInput.value) || 0;
+
+    // Clear previous paths
+    pathLayer.clearLayers();
+
+    // Find nearest safe zone
+    let nearestSafeZone = null;
+    let minDist = Infinity;
+    campus.safeZones.forEach(sz => {
+      const dist = haversine(campus.coords[0], campus.coords[1], sz.coords[0], sz.coords[1]);
+      if (dist < minDist) {
+        minDist = dist;
+        nearestSafeZone = sz;
+      }
+    });
+
+    if (!nearestSafeZone) return;
+
+    // Build graph: nodes are streets + campus + safeZone
+    const nodes = campus.streets.map(street => ({
+      id: street.name,
+      coords: street.path[street.path.length - 1], // use end for heuristic
+      risk: classifyByHeight(expectedFloodHeightCm(intensity, duration, street.sensitivity, campus)).level,
+      path: street.path
+    }));
+    nodes.push({ id: 'campus', coords: campus.coords, risk: 'Safe', path: [campus.coords] });
+    nodes.push({ id: 'safeZone', coords: nearestSafeZone.coords, risk: 'Safe', path: [nearestSafeZone.coords] });
+
+    const graph = {};
+    nodes.forEach(node => {
+      graph[node.id] = [];
+    });
+
+    // Connect streets based on proximity
+    campus.streets.forEach(street => {
+      const node = nodes.find(n => n.id === street.name);
+      campus.streets.forEach(other => {
+        if (street.name !== other.name) {
+          const otherNode = nodes.find(n => n.id === other.name);
+          const dist1 = haversine(node.coords[0], node.coords[1], otherNode.path[0][0], otherNode.path[0][1]);
+          const dist2 = haversine(node.coords[0], node.coords[1], otherNode.coords[0], otherNode.coords[1]);
+          const minDist = Math.min(dist1, dist2);
+          if (minDist < 1000) { // increased threshold
+            let weight = minDist;
+            if (node.risk === 'Impassable' || otherNode.risk === 'Impassable') weight = 10000; // High cost but traversable
+            else if (node.risk === 'Caution' || otherNode.risk === 'Caution') weight *= 2;
+            graph[node.id].push({ to: other.id, weight });
+          }
+        }
+      });
+    });
+
+    // Connect campus to all nearby streets (within 500m)
+    nodes.forEach(node => {
+      if (node.id !== 'campus' && node.id !== 'safeZone') {
+        const dist = haversine(campus.coords[0], campus.coords[1], node.path[0][0], node.path[0][1]);
+        if (dist < 500) {
+          let weight = dist;
+          const streetRisk = classifyByHeight(expectedFloodHeightCm(intensity, duration, campus.streets.find(s => s.name === node.id).sensitivity, campus)).level;
+          if (streetRisk === 'Impassable') weight = dist + 10000;
+          else if (streetRisk === 'Caution') weight = dist * 2;
+          graph['campus'].push({ to: node.id, weight });
+        }
+      }
+    });
+
+    // Connect all nearby streets to safeZone (within 500m)
+    nodes.forEach(node => {
+      if (node.id !== 'campus' && node.id !== 'safeZone') {
+        const dist = haversine(nearestSafeZone.coords[0], nearestSafeZone.coords[1], node.coords[0], node.coords[1]);
+        if (dist < 500) {
+          let weight = dist;
+          const streetRisk = classifyByHeight(expectedFloodHeightCm(intensity, duration, campus.streets.find(s => s.name === node.id).sensitivity, campus)).level;
+          if (streetRisk === 'Impassable') weight = dist + 10000;
+          else if (streetRisk === 'Caution') weight = dist * 2;
+          graph[node.id].push({ to: 'safeZone', weight });
+        }
+      }
+    });
+
+    // A* algorithm
+    function aStar(start, goal, graph) {
+      const openSet = [start];
+      const cameFrom = {};
+      const gScore = {};
+      const fScore = {};
+      gScore[start] = 0;
+      fScore[start] = haversine(nodes.find(n => n.id === start).coords[0], nodes.find(n => n.id === start).coords[1], nodes.find(n => n.id === goal).coords[0], nodes.find(n => n.id === goal).coords[1]);
+      while (openSet.length > 0) {
+        const current = openSet.reduce((a, b) => (fScore[a] || Infinity) < (fScore[b] || Infinity) ? a : b);
+        if (current === goal) {
+          const path = [current];
+          let temp = current;
+          while (cameFrom[temp]) {
+            temp = cameFrom[temp];
+            path.unshift(temp);
+          }
+          return path;
+        }
+        openSet.splice(openSet.indexOf(current), 1);
+        graph[current].forEach(neighbor => {
+          const tentativeG = gScore[current] + neighbor.weight;
+          if (tentativeG < (gScore[neighbor.to] || Infinity)) {
+            cameFrom[neighbor.to] = current;
+            gScore[neighbor.to] = tentativeG;
+            fScore[neighbor.to] = tentativeG + haversine(nodes.find(n => n.id === neighbor.to).coords[0], nodes.find(n => n.id === neighbor.to).coords[1], nodes.find(n => n.id === goal).coords[0], nodes.find(n => n.id === goal).coords[1]);
+            if (!openSet.includes(neighbor.to)) openSet.push(neighbor.to);
+          }
+        });
+      }
+      return null; // no path
+    }
+
+    const pathNodes = aStar('campus', 'safeZone', graph);
+    if (!pathNodes) {
+      alert("No safe path found to a safe zone.");
+      return;
+    }
+
+    // Draw the path: straight lines between nodes
+    const pathCoords = pathNodes.map(nodeId => nodes.find(n => n.id === nodeId).coords);
+    // Remove consecutive duplicates
+    const uniqueCoords = pathCoords.filter((coord, index, arr) => index === 0 || coord[0] !== arr[index-1][0] || coord[1] !== arr[index-1][1]);
+
+    const pathLine = L.polyline(uniqueCoords, {
+      color: 'blue',
+      weight: 5,
+      opacity: 0.8
+    }).addTo(pathLayer);
+
+    // Add markers
+    L.marker(campus.coords).addTo(pathLayer).bindPopup(`Start: ${campus.name}`);
+    L.marker(nearestSafeZone.coords).addTo(pathLayer).bindPopup(`Safe Zone: ${nearestSafeZone.name} (${nearestSafeZone.type})`);
+
+    // Fit map to path
+    map.fitBounds(pathLine.getBounds());
+  }
 });
