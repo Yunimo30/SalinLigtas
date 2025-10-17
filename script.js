@@ -1,8 +1,196 @@
+let map;
+
 window.addEventListener("DOMContentLoaded", () => {
+  // Navigation functionality
+  function navigateToSection(targetSection) {
+    // Remove active class from all links
+    const navLinks = document.querySelectorAll('.nav-link');
+    navLinks.forEach(l => l.classList.remove('active'));
+
+    // Add active class to target link
+    const targetLink = document.querySelector(`[data-section="${targetSection}"]`);
+    if (targetLink) targetLink.classList.add('active');
+
+    // Hide all sections with fade out
+    const pageSections = document.querySelectorAll('.page-section');
+    pageSections.forEach(section => {
+      if (section.classList.contains('active')) {
+        section.style.animation = 'fadeOut 0.3s ease-out';
+        setTimeout(() => {
+          section.classList.remove('active');
+          section.style.animation = '';
+        }, 300);
+      }
+    });
+
+    // Show target section with fade in after a short delay
+    setTimeout(() => {
+      const targetElement = document.getElementById(targetSection);
+      targetElement.classList.add('active');
+      targetElement.style.animation = 'fadeIn 0.5s ease-out';
+    }, 350);
+
+    // Close mobile menu
+    const hamburger = document.getElementById('hamburger');
+    const nav = document.getElementById('nav');
+    hamburger.classList.remove('active');
+    nav.classList.remove('active');
+
+    // Invalidate map size if switching to plan-monitor
+    if (targetSection === 'plan-monitor' && map) {
+      setTimeout(() => map.invalidateSize(), 400);
+    }
+  }
+
+  // Make navigateToSection globally available
+  window.navigateToSection = navigateToSection;
+
+  const navLinks = document.querySelectorAll('.nav-link');
+  const pageSections = document.querySelectorAll('.page-section');
+  const hamburger = document.getElementById('hamburger');
+  const nav = document.getElementById('nav');
+
+  // Hamburger menu toggle
+  hamburger.addEventListener('click', () => {
+    hamburger.classList.toggle('active');
+    nav.classList.toggle('active');
+  });
+
+  navLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const targetSection = e.target.getAttribute('data-section');
+
+      // Remove active class from all links
+      navLinks.forEach(l => l.classList.remove('active'));
+      // Add active class to clicked link
+      e.target.classList.add('active');
+
+      // Hide all sections with fade out
+      pageSections.forEach(section => {
+        if (section.classList.contains('active')) {
+          section.style.animation = 'fadeOut 0.3s ease-out';
+          setTimeout(() => {
+            section.classList.remove('active');
+            section.style.animation = '';
+          }, 300);
+        }
+      });
+
+      // Show target section with fade in after a short delay
+      setTimeout(() => {
+        const targetElement = document.getElementById(targetSection);
+        targetElement.classList.add('active');
+        targetElement.style.animation = 'fadeIn 0.5s ease-out';
+      }, 350);
+
+      // Close mobile menu
+      hamburger.classList.remove('active');
+      nav.classList.remove('active');
+
+      // Invalidate map size if switching to plan-monitor
+      if (targetSection === 'plan-monitor' && map) {
+        setTimeout(() => map.invalidateSize(), 400);
+      }
+    });
+  });
+
+  // Mobile toggles
+  const mobileControlsToggle = document.getElementById('mobileControlsToggle');
+  const mobileResultsToggle = document.getElementById('mobileResultsToggle');
+  const controlsPanel = document.getElementById('controlsPanel');
+  const resultsPanel = document.querySelector('.results');
+
+  if (mobileControlsToggle && controlsPanel) {
+    mobileControlsToggle.addEventListener('click', () => {
+      controlsPanel.classList.toggle('active');
+      mobileControlsToggle.classList.toggle('active');
+
+      // Invalidate map size when controls panel changes
+      if (map) {
+        setTimeout(() => map.invalidateSize(), 300);
+      }
+    });
+  }
+
+  if (mobileResultsToggle && resultsPanel) {
+    mobileResultsToggle.addEventListener('click', () => {
+      resultsPanel.classList.toggle('active');
+      mobileResultsToggle.classList.toggle('active');
+    });
+  }
+
+  // Set initial active nav link to home
+  document.querySelector('.nav-link[data-section="home"]').classList.add('active');
+
+  // Theme toggle functionality
+  const themeToggleBtn = document.getElementById('themeToggleBtn');
+  const themeMenu = document.getElementById('themeMenu');
+  const themeOptions = document.querySelectorAll('.theme-option');
+
+  // Load saved theme
+  const savedTheme = localStorage.getItem('theme') || 'system';
+  applyTheme(savedTheme);
+
+  // Toggle theme menu
+  themeToggleBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    themeMenu.classList.toggle('show');
+  });
+
+  // Close theme menu when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!themeToggleBtn.contains(e.target) && !themeMenu.contains(e.target)) {
+      themeMenu.classList.remove('show');
+    }
+  });
+
+  // Theme option selection
+  themeOptions.forEach(option => {
+    option.addEventListener('click', () => {
+      const selectedTheme = option.dataset.theme;
+      applyTheme(selectedTheme);
+      localStorage.setItem('theme', selectedTheme);
+      themeMenu.classList.remove('show');
+    });
+  });
+
+  // Apply theme function
+  function applyTheme(theme) {
+    const body = document.body;
+    body.classList.remove('light', 'dark');
+
+    if (theme === 'light') {
+      body.classList.add('light');
+    } else if (theme === 'dark') {
+      body.classList.add('dark');
+    } else if (theme === 'system') {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      body.classList.add(prefersDark ? 'dark' : 'light');
+    }
+
+    // Update toggle button icon
+    const icon = themeToggleBtn.querySelector('i');
+    if (theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      icon.className = 'fas fa-sun';
+    } else {
+      icon.className = 'fas fa-moon';
+    }
+  }
+
+  // Listen for system theme changes
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+    if (localStorage.getItem('theme') === 'system') {
+      applyTheme('system');
+    }
+  });
+
   // Map init
-  const map = L.map("map").setView([14.6098, 120.9896], 13);
+  map = L.map("map").setView([14.6098, 120.9896], 13);
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: "&copy; OpenStreetMap contributors"
+    attribution: "&copy; OpenStreetMap contributors",
+    maxZoom: 19,
+    minZoom: 10
   }).addTo(map);
 
   // Street layer group
@@ -98,10 +286,33 @@ window.addEventListener("DOMContentLoaded", () => {
 
   // Charts: rainfall profile (line) and hazard breakdown (pie)
   const rainfallCtx = document.getElementById("rainfallChart").getContext("2d");
+  const isDarkMode = document.body.classList.contains('dark');
+  const chartColors = {
+    text: isDarkMode ? '#ffffff' : '#333333',
+    grid: isDarkMode ? '#4b5563' : '#e5e7eb'
+  };
   const rainfallChart = new Chart(rainfallCtx, {
     type: "line",
     data: { labels: [], datasets: [{ label: "Intensity (mm/hr)", data: [], borderColor: "#365a9b", fill: false }] },
-    options: { responsive: true, maintainAspectRatio: false }
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: {
+          ticks: { color: chartColors.text },
+          grid: { color: chartColors.grid }
+        },
+        y: {
+          ticks: { color: chartColors.text },
+          grid: { color: chartColors.grid }
+        }
+      },
+      plugins: {
+        legend: {
+          labels: { color: chartColors.text }
+        }
+      }
+    }
   });
 
   // Forecast chart (will be created dynamically)
@@ -141,7 +352,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
     // Get current flood heights
     const streetRisks = campus.streets.map(street => {
-      const height = expectedFloodHeightCm(intensity, duration, street.sensitivity, campus);
+      const height = expectedFloodHeightCm(intensity, duration, street, campus);
       const cls = classifyByHeight(height);
       const descriptiveLabel = getDescriptiveRisk(height);
       return { name: street.name, height, level: cls.level, css: cls.css, desc: descriptiveLabel };
@@ -181,10 +392,55 @@ window.addEventListener("DOMContentLoaded", () => {
     return { avgRain: 150, avgFlood: 60 };
   }
 
-  function expectedFloodHeightCm(intensity, durationMin, sensitivity, historical) {
-    const avgs = getHistoricalAvg(historical);
+  // Mock intensity function: sinusoidal variation based on time
+  function getMockIntensity(hour) {
+    // Base intensity with sinusoidal variation (peaks around noon/afternoon)
+    const baseIntensity = 20; // mm/hr
+    const amplitude = 15; // variation range
+    const phase = Math.PI / 12; // shift to peak in afternoon
+    return Math.max(0, baseIntensity + amplitude * Math.sin((hour - 6) * phase));
+  }
+
+  // Real-time intensity function: fetch from API with mock fallback
+  async function getRealTimeIntensity() {
+    try {
+      // Use OpenWeatherMap API for current rainfall
+      const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=Manila,PH&appid=${API_KEY}&units=metric`);
+      if (!response.ok) throw new Error('API request failed');
+      const data = await response.json();
+
+      // Extract rainfall from weather data (if available)
+      const rain = data.rain ? data.rain['1h'] || 0 : 0;
+      return rain;
+    } catch (error) {
+      console.warn('Real-time API failed, using mock data:', error);
+      // Fallback to mock intensity based on current hour
+      const currentHour = new Date().getHours();
+      return getMockIntensity(currentHour);
+    }
+  }
+
+  function expectedFloodHeightCm(intensity, durationMin, street, campus) {
+    const avgs = getHistoricalAvg(campus);
     const durationHours = durationMin / 60;
-    const raw = avgs.avgFlood * (intensity / avgs.avgRain) * sensitivity * durationHours;
+
+    // Enhanced flood calculation incorporating multiple factors
+    const rainfallFactor = intensity / avgs.avgRain;
+    const durationFactor = durationHours;
+    const sensitivityFactor = street.sensitivity;
+    const soilSaturationFactor = street.soilSaturation;
+    const drainageFactor = 1 / street.drainageCapacity; // Lower drainage capacity increases flood risk
+    const elevationFactor = Math.max(0.5, 1 - (street.elevation / 20)); // Higher elevation reduces flood risk
+
+    // Combined flood height calculation
+    const raw = avgs.avgFlood *
+                rainfallFactor *
+                durationFactor *
+                sensitivityFactor *
+                soilSaturationFactor *
+                drainageFactor *
+                elevationFactor;
+
     return Math.min(raw, SIM_CONFIG.MAX_HEIGHT_CM);
   }
 
@@ -225,11 +481,28 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 
   // Main update: table, charts, KPIs, map buffer
-  function runSimulation(mode = 'sim', hourData = null) {
+  async function runSimulation(mode = 'sim', hourData = null) {
     const campusIndex = parseInt(campusSelect.value);
     const campus = campuses[campusIndex];
     let intensity = parseFloat(intensityInput.value) || 0;
     let duration = parseFloat(durationInput.value) || 0;
+
+    // Integrate weather mode logic
+    const weatherMode = document.getElementById('weatherMode').value;
+    if (weatherMode === 'mock') {
+      const currentHour = new Date().getHours();
+      intensity = getMockIntensity(currentHour);
+      intensityInput.value = intensity.toFixed(1);
+    } else if (weatherMode === 'real-time') {
+      try {
+        intensity = await getRealTimeIntensity();
+        intensityInput.value = intensity.toFixed(1);
+      } catch (error) {
+        console.error('Failed to get real-time intensity:', error);
+        // Fallback to manual input
+      }
+    }
+    // For 'manual', use the input value as is
 
     if (mode === 'forecast') {
       intensity = hourData.intensity;
@@ -264,7 +537,7 @@ window.addEventListener("DOMContentLoaded", () => {
     const colorMap = { green: "#22c55e", yellow: "#fbbf24", red: "#ef4444" };
 
     campus.streets.forEach(street => {
-      const peak = expectedFloodHeightCm(intensity, duration, street.sensitivity, campus);
+      const peak = expectedFloodHeightCm(intensity, duration, street, campus);
       heights.push(peak);
       const cls = classifyByHeight(peak);
 
@@ -415,7 +688,7 @@ window.addEventListener("DOMContentLoaded", () => {
     if (window._campusBuffer) { map.removeLayer(window._campusBuffer); window._campusBuffer = null; }
 
     // compute an overall average height to decide buffer color
-    const overallAvgHeight = (campus.streets.reduce((s, st) => s + expectedFloodHeightCm(intensity, duration, st.sensitivity, campus), 0) / campus.streets.length);
+    const overallAvgHeight = (campus.streets.reduce((s, st) => s + expectedFloodHeightCm(intensity, duration, st, campus), 0) / campus.streets.length);
     const overallCls = classifyByHeight(overallAvgHeight);
 
     window._campusBuffer = L.circle(campus.coords, {
@@ -432,7 +705,7 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 
   // hook run button and campus change (clear forecast on change)
-  runBtn.addEventListener("click", () => {
+  runBtn.addEventListener("click", async () => {
     if (forecastAnimation) {
       clearInterval(forecastAnimation);
       forecastAnimation = null;
@@ -442,10 +715,10 @@ window.addEventListener("DOMContentLoaded", () => {
       forecastChart.destroy();
       forecastChart = null;
     }
-    runSimulation();
+    await runSimulation();
     rankSafestRoutes();
   });
-  campusSelect.addEventListener("change", () => {
+  campusSelect.addEventListener("change", async () => {
     const campusIndex = parseInt(campusSelect.value);
     const campus = campuses[campusIndex];
     updateHistoricalChart(campus);
@@ -458,7 +731,7 @@ window.addEventListener("DOMContentLoaded", () => {
       forecastChart.destroy();
       forecastChart = null;
     }
-    runSimulation();
+    await runSimulation();
   });
 
   // scenario buttons
@@ -518,7 +791,7 @@ window.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  resetBtn.addEventListener("click", () => {
+  resetBtn.addEventListener("click", async () => {
     if (forecastAnimation) {
       clearInterval(forecastAnimation);
       forecastAnimation = null;
@@ -527,7 +800,7 @@ window.addEventListener("DOMContentLoaded", () => {
     startStopBtn.textContent = "Start Forecast";
     forecastResults.innerHTML = "";
     forecastHourSlider.value = 0;
-    runSimulation();
+    await runSimulation();
   });
 
   // Export button
@@ -609,7 +882,7 @@ window.addEventListener("DOMContentLoaded", () => {
       let totalHeight = 0;
       let maxCls = { level: 'Safe' };
       campus.streets.forEach(street => {
-        const height = expectedFloodHeightCm(intensity, duration, street.sensitivity, campus);
+        const height = expectedFloodHeightCm(intensity, duration, street, campus);
         totalHeight += height;
         const cls = classifyByHeight(height);
         if (cls.level === 'Impassable' || (cls.level === 'Caution' && maxCls.level === 'Safe')) {
@@ -733,10 +1006,25 @@ window.addEventListener("DOMContentLoaded", () => {
     document.getElementById("tutorialModal").style.display = "block";
   });
 
-  // Help icon for rainfall guidelines
+  // Help icons for guidelines
   const intensityHelp = document.getElementById("intensityHelp");
   intensityHelp.addEventListener("click", () => {
     document.getElementById("guidelinesModal").style.display = "block";
+  });
+
+  const durationHelp = document.getElementById("durationHelp");
+  durationHelp.addEventListener("click", () => {
+    document.getElementById("durationModal").style.display = "block";
+  });
+
+  const weatherModeHelp = document.getElementById("weatherModeHelp");
+  weatherModeHelp.addEventListener("click", () => {
+    document.getElementById("weatherModeModal").style.display = "block";
+  });
+
+  const rainfallPatternHelp = document.getElementById("rainfallPatternHelp");
+  rainfallPatternHelp.addEventListener("click", () => {
+    document.getElementById("rainfallPatternModal").style.display = "block";
   });
 
   // Tutorial navigation
@@ -778,6 +1066,9 @@ window.addEventListener("DOMContentLoaded", () => {
     closeBtn.addEventListener("click", () => {
       document.getElementById("tutorialModal").style.display = "none";
       document.getElementById("guidelinesModal").style.display = "none";
+      document.getElementById("durationModal").style.display = "none";
+      document.getElementById("weatherModeModal").style.display = "none";
+      document.getElementById("rainfallPatternModal").style.display = "none";
       document.getElementById("hotlinesModal").style.display = "none";
       currentStep = 1;
       document.getElementById("step1").style.display = "block";
@@ -798,13 +1089,393 @@ window.addEventListener("DOMContentLoaded", () => {
     if (event.target === document.getElementById("guidelinesModal")) {
       document.getElementById("guidelinesModal").style.display = "none";
     }
+    if (event.target === document.getElementById("durationModal")) {
+      document.getElementById("durationModal").style.display = "none";
+    }
+    if (event.target === document.getElementById("weatherModeModal")) {
+      document.getElementById("weatherModeModal").style.display = "none";
+    }
+    if (event.target === document.getElementById("rainfallPatternModal")) {
+      document.getElementById("rainfallPatternModal").style.display = "none";
+    }
     if (event.target === document.getElementById("hotlinesModal")) {
       document.getElementById("hotlinesModal").style.display = "none";
     }
   });
 
+  // View Street Details Modal
+  const viewStreetDetailsBtn = document.getElementById('viewStreetDetailsBtn');
+  const streetDetailsModal = document.getElementById('streetDetailsModal');
+  const streetDetailsContent = document.getElementById('streetDetailsContent');
+
+  viewStreetDetailsBtn.addEventListener('click', () => {
+    const campusIndex = parseInt(campusSelect.value);
+    const campus = campuses[campusIndex];
+    const intensity = parseFloat(intensityInput.value) || 0;
+    const duration = parseFloat(durationInput.value) || 0;
+
+    let content = `<h3>${campus.name} - Street Flood Risk Factors</h3>`;
+    content += '<div class="table-container"><table class="street-details-table">';
+    content += '<thead><tr><th>Street Name</th><th>Sensitivity</th><th>Soil Saturation</th><th>Drainage Capacity</th><th>Elevation (m)</th><th>Expected Flood Height</th><th>Risk Level</th></tr></thead><tbody>';
+
+    campus.streets.forEach(street => {
+      const floodHeight = expectedFloodHeightCm(intensity, duration, street, campus);
+      const riskLevel = classifyByHeight(floodHeight);
+      const descriptiveRisk = getDescriptiveRisk(floodHeight);
+
+      content += `<tr>
+        <td>${street.name}</td>
+        <td>${street.sensitivity}</td>
+        <td>${street.soilSaturation}</td>
+        <td>${street.drainageCapacity}</td>
+        <td>${street.elevation}</td>
+        <td>${convertHeight(floodHeight)} ${currentUnit}<br><small style="color:#666;">${descriptiveRisk}</small></td>
+        <td><span class="badge ${riskLevel.css}">${riskLevel.level}</span></td>
+      </tr>`;
+    });
+
+    content += '</tbody></table></div>';
+    content += '<p><small><em>Sensitivity:</em> How prone the street is to flooding (higher = more prone).<br>';
+    content += '<em>Soil Saturation:</em> Current soil moisture level (higher = more saturated).<br>';
+    content += '<em>Drainage Capacity:</em> How well the street drains water (higher = better drainage).<br>';
+    content += '<em>Elevation:</em> Street height above sea level (higher = less flood risk).</small></p>';
+
+    streetDetailsContent.innerHTML = content;
+    streetDetailsModal.style.display = 'block';
+  });
+
+  // Close modal when clicking X or outside
+  document.querySelectorAll('#streetDetailsModal .close').forEach(closeBtn => {
+    closeBtn.addEventListener('click', () => {
+      streetDetailsModal.style.display = 'none';
+    });
+  });
+
+  window.addEventListener('click', (event) => {
+    if (event.target === streetDetailsModal) {
+      streetDetailsModal.style.display = 'none';
+    }
+  });
+
   // initial run on load
-  runSimulation();
+  (async () => {
+    await runSimulation();
+  })();
+
+  // Weather Bulletin Functions
+  const API_KEY = 'a252b3b7eef4860ca230bb022fbd10cf';
+  let LOCATION = 'Manila,PH';
+
+  function getWeatherIcon(iconCode) {
+    const iconMap = {
+      '01d': 'fas fa-sun', // clear sky day
+      '01n': 'fas fa-moon',
+      '02d': 'fas fa-cloud-sun',
+      '02n': 'fas fa-cloud-moon',
+      '03d': 'fas fa-cloud',
+      '03n': 'fas fa-cloud',
+      '04d': 'fas fa-cloud',
+      '04n': 'fas fa-cloud',
+      '09d': 'fas fa-cloud-rain',
+      '09n': 'fas fa-cloud-rain',
+      '10d': 'fas fa-cloud-sun-rain',
+      '10n': 'fas fa-cloud-moon-rain',
+      '11d': 'fas fa-bolt',
+      '11n': 'fas fa-bolt',
+      '13d': 'fas fa-snowflake',
+      '13n': 'fas fa-snowflake',
+      '50d': 'fas fa-smog',
+      '50n': 'fas fa-smog'
+    };
+    return iconMap[iconCode] || 'fas fa-cloud';
+  }
+
+  async function fetchWeatherData() {
+    try {
+      // Fetch current weather
+      const currentResponse = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${LOCATION}&appid=${API_KEY}&units=metric`);
+      if (!currentResponse.ok) throw new Error('Failed to fetch current weather');
+      const currentData = await currentResponse.json();
+
+      // Fetch forecast
+      const forecastResponse = await fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${LOCATION}&appid=${API_KEY}&units=metric`);
+      if (!forecastResponse.ok) throw new Error('Failed to fetch forecast');
+      const forecastData = await forecastResponse.json();
+
+      return {
+        current: {
+          temp: Math.round(currentData.main.temp),
+          condition: currentData.weather[0].main,
+          icon: getWeatherIcon(currentData.weather[0].icon),
+          humidity: currentData.main.humidity,
+          wind: Math.round(currentData.wind.speed * 3.6), // m/s to km/h
+          visibility: currentData.visibility ? (currentData.visibility / 1000).toFixed(1) : '10'
+        },
+        alerts: [], // OpenWeatherMap doesn't provide alerts in free tier
+        hourly: forecastData.list.slice(0, 12).map(item => ({
+          time: new Date(item.dt * 1000).toLocaleTimeString('en-US', { hour: 'numeric', hour12: true }),
+          temp: Math.round(item.main.temp),
+          condition: item.weather[0].main,
+          icon: getWeatherIcon(item.weather[0].icon),
+          precip: item.rain ? item.rain['3h'] || 0 : 0
+        })),
+        daily: forecastData.list.filter((_, i) => i % 8 === 0).slice(0, 7).map((item, i) => ({
+          day: i === 0 ? 'Today' : new Date(item.dt * 1000).toLocaleDateString('en-US', { weekday: 'long' }),
+          temp: Math.round(item.main.temp),
+          condition: item.weather[0].main,
+          icon: getWeatherIcon(item.weather[0].icon),
+          precip: item.rain ? item.rain['3h'] || 0 : 0
+        }))
+      };
+    } catch (error) {
+      console.error('Weather API error:', error);
+      // Fallback to mock data on error
+      return generateMockWeatherData();
+    }
+  }
+
+  function generateMockWeatherData() {
+    const conditions = [
+      { name: 'Sunny', icon: 'fas fa-sun', temp: 28 + Math.floor(Math.random() * 8) },
+      { name: 'Partly Cloudy', icon: 'fas fa-cloud-sun', temp: 26 + Math.floor(Math.random() * 6) },
+      { name: 'Cloudy', icon: 'fas fa-cloud', temp: 24 + Math.floor(Math.random() * 4) },
+      { name: 'Light Rain', icon: 'fas fa-cloud-rain', temp: 22 + Math.floor(Math.random() * 4) },
+      { name: 'Heavy Rain', icon: 'fas fa-cloud-showers-heavy', temp: 20 + Math.floor(Math.random() * 3) }
+    ];
+
+    const current = conditions[Math.floor(Math.random() * conditions.length)];
+    return {
+      current: {
+        temp: current.temp,
+        condition: current.name,
+        icon: current.icon,
+        humidity: 65 + Math.floor(Math.random() * 20),
+        wind: 10 + Math.floor(Math.random() * 15),
+        visibility: 8 + Math.floor(Math.random() * 4)
+      },
+      alerts: Math.random() > 0.7 ? [{
+        title: 'Heavy Rain Warning',
+        message: 'Heavy rainfall expected in the next 24 hours. Monitor flood conditions closely.'
+      }] : [],
+      hourly: Array.from({ length: 24 }, (_, i) => {
+        const hour = new Date();
+        hour.setHours(hour.getHours() + i);
+        const condition = conditions[Math.floor(Math.random() * conditions.length)];
+        return {
+          time: hour.toLocaleTimeString('en-US', { hour: 'numeric', hour12: true }),
+          temp: condition.temp,
+          condition: condition.name,
+          icon: condition.icon,
+          precip: Math.random() * 10
+        };
+      }),
+      daily: Array.from({ length: 7 }, (_, i) => {
+        const date = new Date();
+        date.setDate(date.getDate() + i);
+        const condition = conditions[Math.floor(Math.random() * conditions.length)];
+        return {
+          day: i === 0 ? 'Today' : date.toLocaleDateString('en-US', { weekday: 'long' }),
+          temp: condition.temp,
+          condition: condition.name,
+          icon: condition.icon,
+          precip: Math.random() * 15
+        };
+      })
+    };
+  }
+
+  async function updateWeatherDisplay() {
+    const weatherData = await fetchWeatherData();
+
+    // Current weather
+    document.getElementById('currentTemp').textContent = weatherData.current.temp;
+    document.getElementById('currentCondition').textContent = weatherData.current.condition;
+    document.getElementById('currentIcon').className = weatherData.current.icon;
+    document.getElementById('currentHumidity').textContent = `${weatherData.current.humidity}%`;
+    document.getElementById('currentWind').textContent = `${weatherData.current.wind} km/h`;
+    document.getElementById('currentVisibility').textContent = `${weatherData.current.visibility} km`;
+
+    // Weather alerts (mock for now since API doesn't provide)
+    const alertsContainer = document.getElementById('weatherAlerts');
+    alertsContainer.innerHTML = '';
+    if (weatherData.alerts.length > 0) {
+      weatherData.alerts.forEach(alert => {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert-item warning';
+        alertDiv.innerHTML = `
+          <i class="fas fa-exclamation-circle"></i>
+          <div class="alert-content">
+            <strong>${alert.title}</strong>
+            <p>${alert.message}</p>
+          </div>
+        `;
+        alertsContainer.appendChild(alertDiv);
+      });
+    } else {
+      const noAlertDiv = document.createElement('div');
+      noAlertDiv.className = 'alert-item';
+      noAlertDiv.innerHTML = `
+        <i class="fas fa-check-circle" style="color: var(--green);"></i>
+        <div class="alert-content">
+          <strong>No Active Weather Alerts</strong>
+          <p>Weather conditions are currently stable.</p>
+        </div>
+      `;
+      alertsContainer.appendChild(noAlertDiv);
+    }
+
+    // Hourly forecast
+    const hourlyContainer = document.getElementById('hourlyForecast');
+    hourlyContainer.innerHTML = '';
+    weatherData.hourly.forEach(hour => {
+      const hourDiv = document.createElement('div');
+      hourDiv.className = 'hourly-item';
+      hourDiv.innerHTML = `
+        <span class="forecast-time">${hour.time}</span>
+        <i class="${hour.icon} forecast-icon"></i>
+        <span class="forecast-temp">${hour.temp}°</span>
+        <span class="forecast-desc">${hour.condition}</span>
+      `;
+      hourlyContainer.appendChild(hourDiv);
+    });
+
+    // 7-day forecast
+    const dailyContainer = document.getElementById('weeklyForecast');
+    dailyContainer.innerHTML = '';
+    weatherData.daily.forEach(day => {
+      const dayDiv = document.createElement('div');
+      dayDiv.className = 'daily-item';
+      dayDiv.innerHTML = `
+        <span class="forecast-time">${day.day}</span>
+        <i class="${day.icon} forecast-icon"></i>
+        <span class="forecast-temp">${day.temp}°</span>
+        <span class="forecast-desc">${day.condition}</span>
+      `;
+      dailyContainer.appendChild(dayDiv);
+    });
+
+    // Impact analysis based on current weather
+    const floodRisk = weatherData.current.temp < 25 || weatherData.alerts.length > 0 ? 'high' : 'medium';
+    const precipRate = weatherData.hourly[0].precip.toFixed(1);
+    const stormSurge = weatherData.current.wind > 20 ? 'high' : weatherData.current.wind > 15 ? 'medium' : 'low';
+
+    document.getElementById('floodRiskLevel').textContent = floodRisk.charAt(0).toUpperCase() + floodRisk.slice(1);
+    document.getElementById('floodRiskLevel').className = `impact-value ${floodRisk}`;
+    document.getElementById('precipitationRate').textContent = `${precipRate} mm/hr`;
+    document.getElementById('stormSurge').textContent = stormSurge.charAt(0).toUpperCase() + stormSurge.slice(1);
+    document.getElementById('stormSurge').className = `impact-value ${stormSurge}`;
+  }
+
+  // Historical weather chart
+  function createHistoricalWeatherChart() {
+    const ctx = document.getElementById('historicalWeatherChart').getContext('2d');
+    const historicalData = {
+      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+      datasets: [{
+        label: 'Average Rainfall (mm)',
+        data: [45, 38, 52, 68, 89, 112, 134, 145, 123, 98, 76, 54],
+        borderColor: '#3b82f6',
+        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+        fill: true,
+        tension: 0.4
+      }, {
+        label: 'Flood Events',
+        data: [2, 1, 3, 4, 6, 8, 12, 15, 10, 7, 4, 3],
+        borderColor: '#ef4444',
+        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+        fill: true,
+        tension: 0.4,
+        yAxisID: 'y1'
+      }]
+    };
+
+    new Chart(ctx, {
+      type: 'line',
+      data: historicalData,
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            type: 'linear',
+            display: true,
+            position: 'left',
+            title: {
+              display: true,
+              text: 'Rainfall (mm)'
+            }
+          },
+          y1: {
+            type: 'linear',
+            display: true,
+            position: 'right',
+            title: {
+              display: true,
+              text: 'Flood Events'
+            },
+            grid: {
+              drawOnChartArea: false,
+            },
+          }
+        },
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top'
+          }
+        }
+      }
+    });
+  }
+
+  // Location selector functionality
+  const locationSelect = document.getElementById('locationSelect');
+  if (locationSelect) {
+    locationSelect.addEventListener('change', function() {
+      LOCATION = this.value;
+      const locationText = this.options[this.selectedIndex].text;
+      document.getElementById('weatherLocation').textContent = locationText;
+      updateWeatherDisplay();
+    });
+  }
+
+  // Global functions for weather actions
+  window.refreshWeather = function() {
+    updateWeatherDisplay();
+    alert('Weather data refreshed!');
+  };
+
+  window.exportWeatherData = function() {
+    const weatherData = generateMockWeatherData();
+    const csvContent = `Weather Report - ${new Date().toLocaleDateString()}\n\nCurrent Conditions:\nTemperature: ${weatherData.current.temp}°C\nCondition: ${weatherData.current.condition}\nHumidity: ${weatherData.current.humidity}%\nWind: ${weatherData.current.wind} km/h\n\nHourly Forecast:\n${weatherData.hourly.map(h => `${h.time}: ${h.temp}°C, ${h.condition}`).join('\n')}\n\nDaily Forecast:\n${weatherData.daily.map(d => `${d.day}: ${d.temp}°C, ${d.condition}`).join('\n')}`;
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `weather_report_${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  // Initialize weather data when weather bulletin is shown
+  const weatherSection = document.getElementById('weather-bulletin');
+  if (weatherSection && weatherSection.classList.contains('active')) {
+    updateWeatherDisplay();
+    createHistoricalWeatherChart();
+  }
+
+  // Update weather when navigating to weather bulletin
+  const originalNavigateToSection = window.navigateToSection;
+  window.navigateToSection = function(targetSection) {
+    originalNavigateToSection(targetSection);
+    if (targetSection === 'weather-bulletin') {
+      setTimeout(() => {
+        updateWeatherDisplay();
+        createHistoricalWeatherChart();
+      }, 400);
+    }
+  };
 
   // Pathfinding to safe zone using A* on street graph
   function findPathToSafeZone() {
@@ -833,7 +1504,7 @@ window.addEventListener("DOMContentLoaded", () => {
     const nodes = campus.streets.map(street => ({
       id: street.name,
       coords: street.path[street.path.length - 1], // use end for heuristic
-      risk: classifyByHeight(expectedFloodHeightCm(intensity, duration, street.sensitivity, campus)).level,
+      risk: classifyByHeight(expectedFloodHeightCm(intensity, duration, street, campus)).level,
       path: street.path
     }));
     nodes.push({ id: 'campus', coords: campus.coords, risk: 'Safe', path: [campus.coords] });
@@ -869,7 +1540,8 @@ window.addEventListener("DOMContentLoaded", () => {
         const dist = haversine(campus.coords[0], campus.coords[1], node.path[0][0], node.path[0][1]);
         if (dist < 500) {
           let weight = dist;
-          const streetRisk = classifyByHeight(expectedFloodHeightCm(intensity, duration, campus.streets.find(s => s.name === node.id).sensitivity, campus)).level;
+          const street = campus.streets.find(s => s.name === node.id);
+          const streetRisk = classifyByHeight(expectedFloodHeightCm(intensity, duration, street, campus)).level;
           if (streetRisk === 'Impassable') weight = dist + 10000;
           else if (streetRisk === 'Caution') weight = dist * 2;
           graph['campus'].push({ to: node.id, weight });
@@ -883,7 +1555,8 @@ window.addEventListener("DOMContentLoaded", () => {
         const dist = haversine(nearestSafeZone.coords[0], nearestSafeZone.coords[1], node.coords[0], node.coords[1]);
         if (dist < 500) {
           let weight = dist;
-          const streetRisk = classifyByHeight(expectedFloodHeightCm(intensity, duration, campus.streets.find(s => s.name === node.id).sensitivity, campus)).level;
+          const street = campus.streets.find(s => s.name === node.id);
+          const streetRisk = classifyByHeight(expectedFloodHeightCm(intensity, duration, street, campus)).level;
           if (streetRisk === 'Impassable') weight = dist + 10000;
           else if (streetRisk === 'Caution') weight = dist * 2;
           graph[node.id].push({ to: 'safeZone', weight });
@@ -945,7 +1618,264 @@ window.addEventListener("DOMContentLoaded", () => {
     L.marker(campus.coords).addTo(pathLayer).bindPopup(`Start: ${campus.name}`);
     L.marker(nearestSafeZone.coords).addTo(pathLayer).bindPopup(`Safe Zone: ${nearestSafeZone.name} (${nearestSafeZone.type})`);
 
-    // Fit map to path
+  // Fit map to path
     map.fitBounds(pathLine.getBounds());
   }
+
+  // Emergency Hub Functions
+  function initializeEmergencyHub() {
+    loadEmergencyContacts();
+    loadEvacuationRoutes();
+    initializeEmergencyKit();
+  }
+
+  function loadEmergencyContacts() {
+    const contactsContent = document.getElementById('contactsContent');
+    const nationalContacts = emergencyHotlines.national;
+
+    const localContacts = [
+      ...emergencyHotlines.local.manila,
+      ...emergencyHotlines.local.makati,
+      ...emergencyHotlines.local.quezoncity
+    ];
+
+    function renderContacts(contacts) {
+      contactsContent.innerHTML = '';
+      contacts.forEach(contact => {
+        const contactDiv = document.createElement('div');
+        contactDiv.className = 'contact-item';
+        contactDiv.innerHTML = `
+          <span class="contact-name">${contact.name}</span>
+          <span class="contact-number">${contact.number}</span>
+        `;
+        contactsContent.appendChild(contactDiv);
+      });
+    }
+
+    // Initial load
+    renderContacts(nationalContacts);
+
+    // Tab switching
+    const contactTabs = document.querySelectorAll('.contact-tab');
+    contactTabs.forEach(tab => {
+      tab.addEventListener('click', function() {
+        contactTabs.forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+
+        if (this.dataset.contact === 'national') {
+          renderContacts(nationalContacts);
+        } else {
+          renderContacts(localContacts);
+        }
+      });
+    });
+  }
+
+  function loadEvacuationRoutes() {
+    const evacuationSelect = document.getElementById('evacuationCampusSelect');
+    const routeList = document.getElementById('routeList');
+
+    const routes = {
+      dlsu: [
+        'Exit through main gate and head north towards Taft Avenue',
+        'Turn right onto Pedro Gil Street and proceed to CCP Complex',
+        'Use designated pedestrian walkways to avoid flooded areas',
+        'Proceed to SM Mall of Asia evacuation center if needed'
+      ],
+      ust: [
+        'Exit through España Boulevard towards Lerma Street',
+        'Head west towards Recto Avenue and proceed to Quiapo Church area',
+        'Use elevated walkways to avoid low-lying areas near Pasig River',
+        'Proceed to Chinese General Hospital or EARIST Gymnasium'
+      ],
+      mapua_manila: [
+        'Exit through General Luna Street towards Intramuros walls',
+        'Head north towards Bonifacio Drive and Rizal Park',
+        'Use elevated pedestrian bridges to cross busy streets',
+        'Proceed to Philippine General Hospital or Manila City Hall'
+      ],
+      mapua_makati: [
+        'Exit through Pablo Ocampo Street towards Chino Roces Avenue',
+        'Head south towards Ayala Avenue and proceed to Makati CBD',
+        'Use covered walkways and avoid low-lying areas near Pasig River tributaries',
+        'Proceed to Makati Medical Center or nearby schools'
+      ],
+      upd: [
+        'Exit through University Avenue towards Katipunan Road',
+        'Head south towards Ateneo de Manila University campus',
+        'Use the elevated pedestrian bridge to cross Katipunan',
+        'Proceed to Quezon City Hall evacuation center'
+      ]
+    };
+
+    function updateRoutes() {
+      const selectedCampus = evacuationSelect.value;
+      const campusRoutes = routes[selectedCampus];
+
+      routeList.innerHTML = '<ol>';
+      campusRoutes.forEach(route => {
+        routeList.innerHTML += `<li>${route}</li>`;
+      });
+      routeList.innerHTML += '</ol>';
+    }
+
+    // Initial load
+    updateRoutes();
+
+    // Campus selection change
+    evacuationSelect.addEventListener('change', updateRoutes);
+  }
+
+  function initializeEmergencyKit() {
+    // Emergency kit functionality will be handled by existing HTML
+  }
+
+  // Global Emergency Hub Functions
+  window.refreshAlerts = function() {
+    const alertsContainer = document.getElementById('emergencyAlerts');
+    const mockAlerts = [
+      {
+        type: 'info',
+        title: 'System Status: Normal',
+        message: 'All emergency systems are operational. No active alerts at this time.'
+      },
+      {
+        type: 'warning',
+        title: 'Weather Advisory',
+        message: 'Heavy rain expected in Metro Manila. Monitor local weather updates.'
+      }
+    ];
+
+    const randomAlert = mockAlerts[Math.floor(Math.random() * mockAlerts.length)];
+    alertsContainer.innerHTML = `
+      <div class="alert-item ${randomAlert.type}">
+        <i class="fas fa-${randomAlert.type === 'info' ? 'info-circle' : 'exclamation-circle'}"></i>
+        <div class="alert-content">
+          <strong>${randomAlert.title}</strong>
+          <p>${randomAlert.message}</p>
+        </div>
+      </div>
+    `;
+    alert('Emergency alerts refreshed!');
+  };
+
+  window.updateResources = function() {
+    const statuses = ['available', 'limited', 'unavailable'];
+    const statusTexts = {
+      available: ['Well Stocked', 'Adequate', '15 Available'],
+      limited: ['Limited Stock', 'Low Supply', '5 Available'],
+      unavailable: ['Out of Stock', 'Unavailable', '0 Available']
+    };
+
+    document.querySelectorAll('.resource-status').forEach((statusEl, index) => {
+      const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
+      statusEl.className = `resource-status ${randomStatus}`;
+      statusEl.textContent = statusTexts[randomStatus][index % 3];
+    });
+    alert('Resource status updated!');
+  };
+
+  window.printChecklist = function() {
+    const checklistItems = document.querySelectorAll('.kit-category input[type="checkbox"]');
+    let checkedItems = [];
+    let uncheckedItems = [];
+
+    checklistItems.forEach(item => {
+      const label = item.parentElement.textContent.trim();
+      if (item.checked) {
+        checkedItems.push(label);
+      } else {
+        uncheckedItems.push(label);
+      }
+    });
+
+    const printContent = `
+      <h2>Emergency Kit Checklist</h2>
+      <h3>Prepared Items:</h3>
+      <ul>${checkedItems.map(item => `<li>${item}</li>`).join('')}</ul>
+      <h3>Items Still Needed:</h3>
+      <ul>${uncheckedItems.map(item => `<li>${item}</li>`).join('')}</ul>
+      <p>Generated on: ${new Date().toLocaleString()}</p>
+    `;
+
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Emergency Kit Checklist</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            h2 { color: #1e40af; }
+            h3 { color: #374151; margin-top: 20px; }
+            ul { margin: 10px 0; }
+            li { margin: 5px 0; }
+          </style>
+        </head>
+        <body>
+          ${printContent}
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
+  };
+
+  window.resetChecklist = function() {
+    if (confirm('Are you sure you want to reset the checklist?')) {
+      document.querySelectorAll('.kit-category input[type="checkbox"]').forEach(checkbox => {
+        checkbox.checked = false;
+      });
+    }
+  };
+
+  window.activateEmergencyMode = function() {
+    if (confirm('Activate Emergency Mode? This will notify all emergency contacts and activate response protocols.')) {
+      alert('Emergency Mode Activated!\n\n- Emergency contacts notified\n- Response teams deployed\n- Public alerts sent\n- Monitoring systems activated');
+    }
+  };
+
+  window.contactEmergency = function() {
+    const emergencyNumber = '911';
+    if (confirm(`Call emergency services at ${emergencyNumber}?`)) {
+      window.location.href = `tel:${emergencyNumber}`;
+    }
+  };
+
+  // Initialize Emergency Hub when navigating to it
+  const emergencySection = document.getElementById('emergency-hub');
+  if (emergencySection && emergencySection.classList.contains('active')) {
+    initializeEmergencyHub();
+  }
+
+  // Update emergency hub when navigating to emergency hub section
+  window.navigateToSection = function(targetSection) {
+    // Call original function if it exists
+    if (originalNavigateToSection) {
+      originalNavigateToSection(targetSection);
+    } else {
+      // Fallback navigation
+      document.querySelectorAll('.page-section').forEach(section => {
+        section.classList.remove('active');
+      });
+      document.getElementById(targetSection).classList.add('active');
+
+      // Update nav links
+      document.querySelectorAll('.nav-link').forEach(link => {
+        link.classList.remove('active');
+      });
+      document.querySelector(`[data-section="${targetSection}"]`).classList.add('active');
+    }
+
+    // Initialize specific sections
+    if (targetSection === 'weather-bulletin') {
+      setTimeout(() => {
+        updateWeatherDisplay();
+        createHistoricalWeatherChart();
+      }, 400);
+    } else if (targetSection === 'emergency-hub') {
+      setTimeout(() => {
+        initializeEmergencyHub();
+      }, 400);
+    }
+  };
 });

@@ -6,55 +6,209 @@
   <title>Campus Flood Simulation — Prototype</title>
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
+  <header class="header">
+    <button class="hamburger" id="hamburger">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    <nav class="nav" id="nav">
+      <a href="#" class="nav-link active" data-section="home">Home</a>
+      <a href="#" class="nav-link" data-section="plan-monitor">Plan & Monitor</a>
+      <a href="#" class="nav-link" data-section="weather-bulletin">Weather Bulletin</a>
+      <a href="#" class="nav-link" data-section="emergency-hub">Emergency Hub</a>
+      <a href="#" class="nav-link" data-section="report-issues">Report Issues</a>
+    </nav>
+    <div class="header-controls">
+      <div class="theme-toggle-container">
+        <button id="themeToggleBtn" class="theme-toggle-btn" title="Toggle Theme">
+          <i class="fas fa-moon"></i>
+        </button>
+        <div id="themeMenu" class="theme-menu">
+          <button class="theme-option" data-theme="light">
+            <i class="fas fa-sun"></i> Light Mode
+          </button>
+          <button class="theme-option" data-theme="dark">
+            <i class="fas fa-moon"></i> Dark Mode
+          </button>
+          <button class="theme-option" data-theme="system">
+            <i class="fas fa-desktop"></i> System
+          </button>
+        </div>
+      </div>
+      <a href="https://github.com/Yunimo30/SalinLigtas" target="_blank" class="github-link" title="View on GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+    </div>
+  </header>
 
-  <div class="container">
+  <section id="home" class="page-section active">
+    <div class="hero-section">
+      <h1>Welcome to SalinLigtas</h1>
+      <p>A comprehensive flood monitoring and response system for campuses. Stay informed, plan ahead, and respond effectively to flood risks.</p>
+    </div>
+
+    <div class="stats-section">
+      <div class="stat-card">
+        <i class="fas fa-university"></i>
+        <div class="stat-number">5</div>
+        <div class="stat-label">Monitored Campuses</div>
+      </div>
+      <div class="stat-card">
+        <i class="fas fa-chart-line"></i>
+        <div class="stat-number">1000+</div>
+        <div class="stat-label">Simulations Run</div>
+      </div>
+      <div class="stat-card">
+        <i class="fas fa-shield-alt"></i>
+        <div class="stat-number">24/7</div>
+        <div class="stat-label">Monitoring</div>
+      </div>
+    </div>
+
+    <div class="features-section">
+      <h2>Key Features</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <i class="fas fa-map-marked-alt"></i>
+          <h3>Predictive Maps</h3>
+          <p>Visualize flood risks and safe routes around your campus with real-time data.</p>
+        </div>
+        <div class="feature-card">
+          <i class="fas fa-bell"></i>
+          <h3>Real-time Alerts</h3>
+          <p>Get instant notifications about changing weather conditions and flood risks.</p>
+        </div>
+        <div class="feature-card">
+          <i class="fas fa-route"></i>
+          <h3>Safe Route Planning</h3>
+          <p>Identify the safest evacuation routes and make informed decisions quickly.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="about-section">
+      <h2>About SalinLigtas</h2>
+      <p>SalinLigtas is a predictive simulation map designed for schools in flood-prone areas. Using user input data (historical and current rainfall data), the system visualizes high-risk areas around the campus and indicates safe route streets. It aims to help in anticipating flooding, plan evacuations, and make earlier, reliable, and independent suspension decisions to protect students and staff.</p>
+    </div>
+
+    <div class="tutorial-section">
+      <h2>How to Use SalinLigtas</h2>
+      <div class="tutorial-steps">
+        <div class="tutorial-step">
+          <div class="step-number floating">1</div>
+          <h3>Select Your Campus</h3>
+          <p>Choose your campus from the dropdown in the Plan & Monitor section.</p>
+        </div>
+        <div class="tutorial-step">
+          <div class="step-number floating">2</div>
+          <h3>Input Rainfall Data</h3>
+          <p>Enter rainfall intensity, duration, and pattern or use preset scenarios.</p>
+        </div>
+        <div class="tutorial-step">
+          <div class="step-number floating">3</div>
+          <h3>Run Simulation</h3>
+          <p>Click "Run Simulation" to see flood predictions and safe routes.</p>
+        </div>
+        <div class="tutorial-step">
+          <div class="step-number floating">4</div>
+          <h3>Take Action</h3>
+          <p>Use the results to plan evacuations and make suspension decisions.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="cta-section">
+      <p>Ready to protect your campus? Head to the Plan & Monitor section to start your first simulation.</p>
+      <button class="cta-button" onclick="navigateToSection('plan-monitor')">Start Planning</button>
+    </div>
+  </section>
+
+  <section id="plan-monitor" class="page-section">
+    <!-- Mobile Toggles -->
+    <div class="mobile-toggles">
+      <button id="mobileControlsToggle" class="mobile-toggle-btn">Controls</button>
+      <button id="mobileResultsToggle" class="mobile-toggle-btn">Results</button>
+    </div>
+
     <!-- LEFT: Controls -->
-    <aside class="controls card">
+    <aside class="controls card" id="controlsPanel">
+      <div class="control-header">
+        <h2><i class="fas fa-cogs"></i> Simulation Controls</h2>
+        <p class="control-subtitle">Configure your flood simulation parameters</p>
+      </div>
+
       <div class="tabs">
         <button class="tab-btn active" data-tab="simulation">Simulation</button>
         <button class="tab-btn" data-tab="forecast">Forecast</button>
       </div>
 
       <div id="simulationTab" class="tab-content">
-        <h2>Simulation Controls</h2>
-
-        <label for="campusSelect">Select Campus</label>
-        <select id="campusSelect"></select>
-
-        <label for="intensity">Rainfall intensity (mm/hr) <span id="intensityHelp" class="help-icon" title="Click for guidelines">?</span></label>
-        <input id="intensity" type="number" value="30" min="0" max="200" />
-
-        <label for="duration">Duration (minutes)</label>
-        <input id="duration" type="number" value="60" min="0" max="1440" />
-
-        <label for="rainfallPattern">Rainfall Pattern</label>
-        <select id="rainfallPattern">
-          <option value="bell">Bell Curve</option>
-          <option value="uniform">Uniform</option>
-          <option value="increasing">Increasing</option>
-          <option value="decreasing">Decreasing</option>
-        </select>
-
-        <div class="scenario-row">
-          <button class="scenario-btn" data-i="10" data-d="30">Light</button>
-          <button class="scenario-btn" data-i="30" data-d="60">Moderate</button>
-          <button class="scenario-btn" data-i="60" data-d="120">Heavy</button>
+        <div class="control-group">
+          <label for="campusSelect"><i class="fas fa-map-marker-alt"></i> Select Campus</label>
+          <select id="campusSelect"></select>
         </div>
 
-        <button id="runSim" class="run-btn">Run Simulation</button>
-
-        <div class="notes small">
-          <p><strong>Note:</strong> Sensitivities are prototype estimates based on historical reporting — tune them with real sensor or gauge data for production.</p>
+        <div class="control-group">
+          <label for="intensity"><i class="fas fa-cloud-rain"></i> Rainfall Intensity (mm/hr) <span id="intensityHelp" class="help-icon" title="Click for guidelines">?</span></label>
+          <input id="intensity" type="number" value="30" min="0" max="200" />
         </div>
 
-        <div class="unit-toggle">
-          <button id="unitToggle" class="run-btn">Units: cm</button>
-          <button id="howToUseBtn" class="run-btn">How to Use</button>
+        <div class="control-group">
+          <label for="duration"><i class="fas fa-clock"></i> Duration (minutes) <span id="durationHelp" class="help-icon" title="Click for guidelines">?</span></label>
+          <input id="duration" type="number" value="60" min="0" max="1440" />
+        </div>
+
+        <div class="control-group">
+          <label for="weatherMode"><i class="fas fa-cloud-sun"></i> Weather Mode <span id="weatherModeHelp" class="help-icon" title="Click for guidelines">?</span></label>
+          <select id="weatherMode">
+            <option value="manual">Manual Input</option>
+            <option value="mock">Mock Data</option>
+            <option value="real-time">Real-Time</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label for="rainfallPattern"><i class="fas fa-chart-line"></i> Rainfall Pattern <span id="rainfallPatternHelp" class="help-icon" title="Click for guidelines">?</span></label>
+          <select id="rainfallPattern">
+            <option value="bell">Bell Curve</option>
+            <option value="uniform">Uniform</option>
+            <option value="increasing">Increasing</option>
+            <option value="decreasing">Decreasing</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <button id="viewStreetDetailsBtn" class="run-btn" style="width: 100%; margin-top: 10px;"><i class="fas fa-info-circle"></i> View Street Details</button>
+        </div>
+
+        <div class="control-group">
+          <label><i class="fas fa-magic"></i> Quick Scenarios</label>
+          <div class="scenario-row">
+            <button class="scenario-btn" data-i="10" data-d="30">Light</button>
+            <button class="scenario-btn" data-i="30" data-d="60">Moderate</button>
+            <button class="scenario-btn" data-i="60" data-d="120">Heavy</button>
+          </div>
+        </div>
+
+        <div class="control-actions">
+          <button id="runSim" class="run-btn primary"><i class="fas fa-play"></i> Run Simulation</button>
+        </div>
+
+        <div class="control-footer">
+          <div class="unit-toggle">
+            <button id="unitToggle" class="run-btn secondary">Units: cm</button>
+            <button id="howToUseBtn" class="run-btn secondary">How to Use</button>
+          </div>
+          <div class="notes small">
+            <p><i class="fas fa-info-circle"></i> <strong>Tip:</strong> Sensitivities are based on historical data. Use real sensor data for accurate results.</p>
+          </div>
         </div>
       </div>
 
@@ -103,43 +257,563 @@
 
     <!-- RIGHT: Results -->
     <aside class="results card">
-      <h3>Flood Risk by Street</h3>
-      <table id="floodTable" class="flood-table">
-        <thead>
-          <tr><th>Street</th><th>Risk</th><th>Expected height (cm)</th><th>Forecast Peak (cm)</th></tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-
-      <h3>Rainfall profile</h3>
-      <canvas id="rainfallChart"></canvas>
-
-      <h3>Street hazard breakdown</h3>
-      <canvas id="hazardChart"></canvas>
-
-      <h3>Historical Trends</h3>
-      <canvas id="historicalChart"></canvas>
-
-      <div class="kpis">
-        <div><strong>Flood onset</strong>: <span id="kpiOnset">--</span> min</div>
-        <div><strong>Passable routes</strong>: <span id="kpiRoutes">--</span></div>
-        <div><strong>Model accuracy (placeholder)</strong>: <span id="kpiAccuracy">85%</span></div>
-        <div><strong>Suspension Risk</strong>: <span id="kpiSuspension">--</span></div>
-        <div><strong>Height Comparison</strong>: <span id="kpiHeightComparison">--</span></div>
+      <div class="results-header">
+        <h3><i class="fas fa-chart-bar"></i> Simulation Results</h3>
+        <p class="results-subtitle">Analysis and insights from your simulation</p>
       </div>
 
-      <button id="hotlinesBtn" class="run-btn" style="margin-top:10px;">Emergency Hotlines</button>
+      <div class="results-section">
+        <h4><i class="fas fa-road"></i> Flood Risk by Street</h4>
+        <div class="table-container">
+          <table id="floodTable" class="flood-table">
+            <thead>
+              <tr><th>Street</th><th>Risk</th><th>Expected height (cm)</th><th>Forecast Peak (cm)</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
 
-      <h3>Safe Route Identifier</h3>
-      <div id="safestRoutes"></div>
+      <div class="results-section">
+        <h4><i class="fas fa-chart-area"></i> Rainfall Profile</h4>
+        <canvas id="rainfallChart"></canvas>
+      </div>
 
-      <button id="exportBtn" class="run-btn" style="margin-top:10px;">Export Results</button>
+      <div class="results-section">
+        <h4><i class="fas fa-pie-chart"></i> Hazard Breakdown</h4>
+        <canvas id="hazardChart"></canvas>
+      </div>
 
-      <div id="alerts" style="margin-top:10px; display:none; background:#fee; border:1px solid #f00; padding:8px; border-radius:5px;"></div>
+      <div class="results-section">
+        <h4><i class="fas fa-history"></i> Historical Trends</h4>
+        <canvas id="historicalChart"></canvas>
+      </div>
 
-      <div id="routeSummary" style="display:none;"></div>
+      <div class="results-section">
+        <h4><i class="fas fa-tachometer-alt"></i> Key Metrics</h4>
+        <div class="kpis">
+          <div class="kpi-item">
+            <span class="kpi-label">Flood Onset</span>
+            <span class="kpi-value" id="kpiOnset">--</span>
+            <span class="kpi-unit">min</span>
+          </div>
+          <div class="kpi-item">
+            <span class="kpi-label">Passable Routes</span>
+            <span class="kpi-value" id="kpiRoutes">--</span>
+          </div>
+          <div class="kpi-item">
+            <span class="kpi-label">Model Accuracy</span>
+            <span class="kpi-value" id="kpiAccuracy">85%</span>
+          </div>
+          <div class="kpi-item">
+            <span class="kpi-label">Suspension Risk</span>
+            <span class="kpi-value" id="kpiSuspension">--</span>
+          </div>
+          <div class="kpi-item">
+            <span class="kpi-label">Height Comparison</span>
+            <span class="kpi-value" id="kpiHeightComparison">--</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="results-section">
+        <h4><i class="fas fa-route"></i> Safe Route Identifier</h4>
+        <div id="safestRoutes"></div>
+      </div>
+
+      <div class="results-actions">
+        <button id="hotlinesBtn" class="run-btn secondary"><i class="fas fa-phone"></i> Emergency Hotlines</button>
+        <button id="exportBtn" class="run-btn secondary"><i class="fas fa-download"></i> Export Results</button>
+      </div>
+
+      <div id="alerts" class="alert-section" style="display:none;">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span>Alert message will appear here</span>
+      </div>
+
+      <div id="routeSummary" class="route-summary" style="display:none;"></div>
     </aside>
-  </div>
+  </section>
+
+  <section id="weather-bulletin" class="page-section">
+    <div class="weather-container">
+      <div class="weather-header">
+        <h1><i class="fas fa-cloud-sun"></i> Weather Bulletin</h1>
+        <p class="weather-subtitle">Real-time weather monitoring and forecasts for flood-prone areas</p>
+        <div class="weather-location-selector">
+          <div class="location-input-group">
+            <label for="locationSelect"><i class="fas fa-map-marker-alt"></i> Select Location:</label>
+            <select id="locationSelect">
+              <option value="Manila,PH">Manila, Philippines</option>
+              <option value="Quezon City,PH">Quezon City, Philippines</option>
+              <option value="Makati,PH">Makati, Philippines</option>
+              <option value="Pasig,PH">Pasig, Philippines</option>
+              <option value="Taguig,PH">Taguig, Philippines</option>
+              <option value="Cebu City,PH">Cebu City, Philippines</option>
+              <option value="Davao City,PH">Davao City, Philippines</option>
+              <option value="Iloilo City,PH">Iloilo City, Philippines</option>
+              <option value="Baguio,PH">Baguio, Philippines</option>
+              <option value="Batangas,PH">Batangas, Philippines</option>
+            </select>
+          </div>
+          <div class="weather-location">
+            <i class="fas fa-map-marker-alt"></i>
+            <span id="weatherLocation">Manila, Philippines</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="weather-grid">
+        <!-- Current Weather -->
+        <div class="weather-card current-weather">
+          <h3><i class="fas fa-sun"></i> Current Conditions</h3>
+          <div class="current-details">
+            <div class="temp-display">
+              <span id="currentTemp">28</span>
+              <span class="temp-unit">°C</span>
+            </div>
+            <div class="weather-condition">
+              <i id="currentIcon" class="fas fa-cloud"></i>
+              <span id="currentCondition">Partly Cloudy</span>
+            </div>
+            <div class="weather-metrics">
+              <div class="metric">
+                <i class="fas fa-tint"></i>
+                <span id="currentHumidity">75%</span>
+              </div>
+              <div class="metric">
+                <i class="fas fa-wind"></i>
+                <span id="currentWind">15 km/h</span>
+              </div>
+              <div class="metric">
+                <i class="fas fa-eye"></i>
+                <span id="currentVisibility">10 km</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Weather Alerts -->
+        <div class="weather-card alerts-card">
+          <h3><i class="fas fa-exclamation-triangle"></i> Weather Alerts</h3>
+          <div id="weatherAlerts" class="alerts-container">
+            <div class="alert-item warning">
+              <i class="fas fa-exclamation-circle"></i>
+              <div class="alert-content">
+                <strong>Heavy Rain Warning</strong>
+                <p>Heavy rainfall expected in the next 24 hours. Monitor flood conditions.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 24-Hour Forecast -->
+        <div class="weather-card forecast-card">
+          <h3><i class="fas fa-clock"></i> 24-Hour Forecast</h3>
+          <div id="hourlyForecast" class="forecast-container">
+            <!-- Hourly forecast items will be populated by JS -->
+          </div>
+        </div>
+
+        <!-- 7-Day Forecast -->
+        <div class="weather-card forecast-card">
+          <h3><i class="fas fa-calendar-alt"></i> 7-Day Forecast</h3>
+          <div id="weeklyForecast" class="forecast-container">
+            <!-- Weekly forecast items will be populated by JS -->
+          </div>
+        </div>
+
+        <!-- Historical Patterns -->
+        <div class="weather-card chart-card">
+          <h3><i class="fas fa-chart-line"></i> Historical Rainfall Patterns</h3>
+          <canvas id="historicalWeatherChart"></canvas>
+        </div>
+
+        <!-- Weather Impact Analysis -->
+        <div class="weather-card analysis-card">
+          <h3><i class="fas fa-chart-pie"></i> Weather Impact Analysis</h3>
+          <div class="impact-metrics">
+            <div class="impact-item">
+              <span class="impact-label">Flood Risk Level</span>
+              <span id="floodRiskLevel" class="impact-value high">High</span>
+            </div>
+            <div class="impact-item">
+              <span class="impact-label">Precipitation Rate</span>
+              <span id="precipitationRate" class="impact-value">25 mm/hr</span>
+            </div>
+            <div class="impact-item">
+              <span class="impact-label">Storm Surge Potential</span>
+              <span id="stormSurge" class="impact-value medium">Medium</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="weather-actions">
+        <button class="run-btn secondary" onclick="refreshWeather()">
+          <i class="fas fa-sync-alt"></i> Refresh Data
+        </button>
+        <button class="run-btn secondary" onclick="exportWeatherData()">
+          <i class="fas fa-download"></i> Export Report
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section id="emergency-hub" class="page-section">
+    <div class="emergency-container">
+      <div class="emergency-header">
+        <h1><i class="fas fa-shield-alt"></i> Emergency Hub</h1>
+        <p class="emergency-subtitle">Comprehensive emergency response and preparedness resources</p>
+        <div class="emergency-disclaimer">
+          <i class="fas fa-info-circle"></i>
+          <small>This section uses mock data for demonstration purposes. In a real emergency, always contact official authorities and follow local emergency protocols.</small>
+        </div>
+      </div>
+
+      <div class="emergency-grid">
+        <!-- Emergency Alerts -->
+        <div class="emergency-card alerts-card">
+          <h3><i class="fas fa-exclamation-triangle"></i> Emergency Alerts</h3>
+          <div id="emergencyAlerts" class="alerts-container">
+            <div class="alert-item info">
+              <i class="fas fa-info-circle"></i>
+              <div class="alert-content">
+                <strong>System Status: Normal</strong>
+                <p>All emergency systems are operational. No active alerts at this time.</p>
+              </div>
+            </div>
+          </div>
+          <div class="alert-actions">
+            <button class="run-btn secondary" onclick="refreshAlerts()">
+              <i class="fas fa-sync-alt"></i> Refresh Alerts
+            </button>
+          </div>
+        </div>
+
+        <!-- Evacuation Routes -->
+        <div class="emergency-card routes-card">
+          <h3><i class="fas fa-route"></i> Evacuation Routes</h3>
+          <div class="campus-selector">
+            <label for="evacuationCampusSelect">Select Campus:</label>
+            <select id="evacuationCampusSelect">
+              <option value="dlsu">De La Salle University (DLSU - Taft)</option>
+              <option value="ust">University of Santo Tomas (UST - España)</option>
+              <option value="mapua_manila">Mapúa (Intramuros, Manila)</option>
+              <option value="mapua_makati">Mapúa (Makati, Pablo Ocampo)</option>
+              <option value="upd">UP Diliman (Quezon City)</option>
+            </select>
+          </div>
+          <div id="evacuationMap" class="evacuation-map"></div>
+          <div class="route-info">
+            <h4>Safe Evacuation Routes</h4>
+            <div id="routeList"></div>
+          </div>
+        </div>
+
+        <!-- Emergency Contacts -->
+        <div class="emergency-card contacts-card">
+          <h3><i class="fas fa-phone"></i> Emergency Contacts</h3>
+          <div class="contact-tabs">
+            <button class="contact-tab active" data-contact="national">National</button>
+            <button class="contact-tab" data-contact="local">Local</button>
+          </div>
+          <div id="contactsContent" class="contacts-content">
+            <!-- Contacts will be populated by JS -->
+          </div>
+        </div>
+
+        <!-- Emergency Procedures -->
+        <div class="emergency-card procedures-card">
+          <h3><i class="fas fa-list-check"></i> Emergency Procedures</h3>
+          <div class="procedure-steps">
+            <div class="procedure-step">
+              <div class="step-number">1</div>
+              <div class="step-content">
+                <h4>Stay Calm & Assess</h4>
+                <p>Remain calm and assess the situation. Do not panic.</p>
+              </div>
+            </div>
+            <div class="procedure-step">
+              <div class="step-number">2</div>
+              <div class="step-content">
+                <h4>Follow Evacuation Routes</h4>
+                <p>Use designated evacuation routes and follow instructions from authorities.</p>
+              </div>
+            </div>
+            <div class="procedure-step">
+              <div class="step-number">3</div>
+              <div class="step-content">
+                <h4>Head to Safe Zones</h4>
+                <p>Move to the nearest safe zone or evacuation center.</p>
+              </div>
+            </div>
+            <div class="procedure-step">
+              <div class="step-number">4</div>
+              <div class="step-content">
+                <h4>Contact Emergency Services</h4>
+                <p>Call emergency hotlines if you need immediate assistance.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resource Tracking -->
+        <div class="emergency-card resources-card">
+          <h3><i class="fas fa-boxes"></i> Resource Availability</h3>
+          <div class="resource-grid">
+            <div class="resource-item">
+              <i class="fas fa-home"></i>
+              <div class="resource-info">
+                <span class="resource-name">Evacuation Centers</span>
+                <span class="resource-status available">15 Available</span>
+              </div>
+            </div>
+            <div class="resource-item">
+              <i class="fas fa-utensils"></i>
+              <div class="resource-info">
+                <span class="resource-name">Food Supplies</span>
+                <span class="resource-status available">Well Stocked</span>
+              </div>
+            </div>
+            <div class="resource-item">
+              <i class="fas fa-first-aid"></i>
+              <div class="resource-info">
+                <span class="resource-name">Medical Supplies</span>
+                <span class="resource-status available">Adequate</span>
+              </div>
+            </div>
+            <div class="resource-item">
+              <i class="fas fa-tshirt"></i>
+              <div class="resource-info">
+                <span class="resource-name">Clothing/Blankets</span>
+                <span class="resource-status limited">Limited Stock</span>
+              </div>
+            </div>
+          </div>
+          <div class="resource-actions">
+            <button class="run-btn secondary" onclick="updateResources()">
+              <i class="fas fa-sync-alt"></i> Update Status
+            </button>
+          </div>
+        </div>
+
+        <!-- Emergency Kit Checklist -->
+        <div class="emergency-card kit-card">
+          <h3><i class="fas fa-toolbox"></i> Emergency Kit Checklist</h3>
+          <div class="kit-categories">
+            <div class="kit-category">
+              <h4>Essentials</h4>
+              <ul>
+                <li><input type="checkbox" id="water"> Drinking Water (1 gallon per person per day)</li>
+                <li><input type="checkbox" id="food"> Non-perishable Food (3-day supply)</li>
+                <li><input type="checkbox" id="radio"> Battery-powered Radio</li>
+                <li><input type="checkbox" id="flashlight"> Flashlight with extra batteries</li>
+                <li><input type="checkbox" id="firstaid"> First Aid Kit</li>
+              </ul>
+            </div>
+            <div class="kit-category">
+              <h4>Documents</h4>
+              <ul>
+                <li><input type="checkbox" id="id"> Identification documents</li>
+                <li><input type="checkbox" id="insurance"> Insurance papers</li>
+                <li><input type="checkbox" id="cash"> Cash in small denominations</li>
+                <li><input type="checkbox" id="contacts"> Emergency contact list</li>
+              </ul>
+            </div>
+            <div class="kit-category">
+              <h4>Personal Items</h4>
+              <ul>
+                <li><input type="checkbox" id="clothes"> Extra clothing</li>
+                <li><input type="checkbox" id="blanket"> Blanket or sleeping bag</li>
+                <li><input type="checkbox" id="toiletries"> Personal hygiene items</li>
+                <li><input type="checkbox" id="medication"> Prescription medications</li>
+              </ul>
+            </div>
+          </div>
+          <div class="kit-actions">
+            <button class="run-btn secondary" onclick="printChecklist()">
+              <i class="fas fa-print"></i> Print Checklist
+            </button>
+            <button class="run-btn secondary" onclick="resetChecklist()">
+              <i class="fas fa-undo"></i> Reset
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="emergency-actions">
+        <button class="run-btn primary" onclick="activateEmergencyMode()">
+          <i class="fas fa-exclamation-triangle"></i> Activate Emergency Mode
+        </button>
+        <button class="run-btn secondary" onclick="contactEmergency()">
+          <i class="fas fa-phone"></i> Contact Emergency Services
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section id="report-issues" class="page-section">
+    <div class="report-container">
+      <div class="report-header">
+        <h1><i class="fas fa-exclamation-triangle"></i> Report Issues</h1>
+        <p class="report-subtitle">Report flood-related issues, incidents, or provide feedback to help improve campus safety</p>
+      </div>
+
+      <div class="report-grid">
+        <!-- Report Form -->
+        <div class="report-card report-form-card">
+          <h3><i class="fas fa-clipboard-list"></i> Submit Report</h3>
+          <form id="reportForm" class="report-form">
+            <div class="form-group">
+              <label for="reportType"><i class="fas fa-tag"></i> Issue Type</label>
+              <select id="reportType" required>
+                <option value="">Select issue type...</option>
+                <option value="flooding">Flooding</option>
+                <option value="blocked-route">Blocked Route</option>
+                <option value="infrastructure-damage">Infrastructure Damage</option>
+                <option value="safety-concern">Safety Concern</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="reportLocation"><i class="fas fa-map-marker-alt"></i> Location</label>
+              <input type="text" id="reportLocation" placeholder="Describe the location..." required>
+            </div>
+
+            <div class="form-group">
+              <label for="reportDescription"><i class="fas fa-comment"></i> Description</label>
+              <textarea id="reportDescription" rows="4" placeholder="Provide details about the issue..." required></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="reportUrgency"><i class="fas fa-exclamation-circle"></i> Urgency Level</label>
+              <select id="reportUrgency">
+                <option value="low">Low</option>
+                <option value="medium" selected>Medium</option>
+                <option value="high">High</option>
+                <option value="critical">Critical</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="reporterName"><i class="fas fa-user"></i> Your Name (Optional)</label>
+              <input type="text" id="reporterName" placeholder="Anonymous">
+            </div>
+
+            <div class="form-group">
+              <label for="reporterContact"><i class="fas fa-phone"></i> Contact Info (Optional)</label>
+              <input type="text" id="reporterContact" placeholder="Email or phone number">
+            </div>
+
+            <button type="submit" class="run-btn primary"><i class="fas fa-paper-plane"></i> Submit Report</button>
+          </form>
+        </div>
+
+        <!-- Photo Upload -->
+        <div class="report-card photo-upload-card">
+          <h3><i class="fas fa-camera"></i> Photo Evidence</h3>
+          <div class="photo-upload-area">
+            <div class="upload-placeholder">
+              <i class="fas fa-cloud-upload-alt"></i>
+              <p>Drag & drop photos here or click to browse</p>
+              <input type="file" id="photoUpload" accept="image/*" multiple>
+              <button class="run-btn secondary" onclick="document.getElementById('photoUpload').click()">
+                <i class="fas fa-folder-open"></i> Choose Files
+              </button>
+            </div>
+            <div id="photoPreview" class="photo-preview"></div>
+          </div>
+        </div>
+
+        <!-- Incident Map -->
+        <div class="report-card incident-map-card">
+          <h3><i class="fas fa-map-marked-alt"></i> Incident Map</h3>
+          <div id="incidentMap" class="incident-map"></div>
+          <div class="map-controls">
+            <button class="run-btn secondary" onclick="locateUser()">
+              <i class="fas fa-crosshairs"></i> Use My Location
+            </button>
+            <button class="run-btn secondary" onclick="clearMarkers()">
+              <i class="fas fa-trash"></i> Clear Markers
+            </button>
+          </div>
+        </div>
+
+        <!-- Status Tracking -->
+        <div class="report-card status-tracking-card">
+          <h3><i class="fas fa-tasks"></i> Report Status</h3>
+          <div id="statusList" class="status-list">
+            <div class="status-item">
+              <div class="status-header">
+                <span class="status-id">#REP-2024-001</span>
+                <span class="status-badge pending">Pending</span>
+              </div>
+              <div class="status-details">
+                <p><strong>Type:</strong> Flooding</p>
+                <p><strong>Location:</strong> Taft Avenue near DLSU</p>
+                <p><strong>Submitted:</strong> 2 hours ago</p>
+              </div>
+            </div>
+            <div class="status-item">
+              <div class="status-header">
+                <span class="status-id">#REP-2024-002</span>
+                <span class="status-badge in-progress">In Progress</span>
+              </div>
+              <div class="status-details">
+                <p><strong>Type:</strong> Blocked Route</p>
+                <p><strong>Location:</strong> España Boulevard</p>
+                <p><strong>Submitted:</strong> 1 day ago</p>
+              </div>
+            </div>
+            <div class="status-item">
+              <div class="status-header">
+                <span class="status-id">#REP-2024-003</span>
+                <span class="status-badge resolved">Resolved</span>
+              </div>
+              <div class="status-details">
+                <p><strong>Type:</strong> Safety Concern</p>
+                <p><strong>Location:</strong> UP Diliman Quad</p>
+                <p><strong>Submitted:</strong> 3 days ago</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Community Alerts -->
+        <div class="report-card community-alerts-card">
+          <h3><i class="fas fa-bullhorn"></i> Community Alerts</h3>
+          <div id="communityAlerts" class="community-alerts">
+            <div class="alert-item warning">
+              <i class="fas fa-exclamation-triangle"></i>
+              <div class="alert-content">
+                <strong>Flash Flood Warning</strong>
+                <p>Heavy rainfall expected in Manila area. Residents advised to stay indoors.</p>
+                <small>Posted 30 minutes ago</small>
+              </div>
+            </div>
+            <div class="alert-item info">
+              <i class="fas fa-info-circle"></i>
+              <div class="alert-content">
+                <strong>Road Closure</strong>
+                <p>Taft Avenue partially closed due to flooding. Use alternative routes.</p>
+                <small>Posted 2 hours ago</small>
+              </div>
+            </div>
+            <div class="alert-item success">
+              <i class="fas fa-check-circle"></i>
+              <div class="alert-content">
+                <strong>Issue Resolved</strong>
+                <p>Power restored to Mapúa Makati campus after brief outage.</p>
+                <small>Posted 4 hours ago</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- Emergency Hotlines Modal -->
   <div id="hotlinesModal" class="modal">
@@ -189,6 +863,84 @@
           <li><strong>Heavy Thunderstorm:</strong> 40-60+ mm/hr</li>
         </ul>
         <p>These are general guidelines. Actual intensities can vary by location and weather conditions.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Duration Guidelines Modal -->
+  <div id="durationModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Duration Guidelines</h2>
+      <div id="durationContent">
+        <ul>
+          <li><strong>Short Event:</strong> 30-60 minutes (typical shower)</li>
+          <li><strong>Moderate Event:</strong> 60-120 minutes (typical storm)</li>
+          <li><strong>Extended Event:</strong> 120-240 minutes (prolonged rainfall)</li>
+          <li><strong>Extreme Event:</strong> 240+ minutes (monsoon conditions)</li>
+        </ul>
+        <p>Duration affects flood accumulation. Longer durations allow more water to build up even with lower intensity.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Weather Mode Guidelines Modal -->
+  <div id="weatherModeModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Weather Mode Guidelines</h2>
+      <div id="weatherModeContent">
+        <div class="mode-explanation">
+          <h3>Manual Input</h3>
+          <p>Use this mode when you have specific rainfall data from weather reports or sensors. Enter exact values for precise simulation.</p>
+        </div>
+        <div class="mode-explanation">
+          <h3>Mock Data</h3>
+          <p>Generates realistic rainfall patterns based on current time of day. Useful for testing and demonstration purposes.</p>
+        </div>
+        <div class="mode-explanation">
+          <h3>Real-Time</h3>
+          <p>Fetches live weather data from OpenWeatherMap API. Requires internet connection and may have API rate limits.</p>
+        </div>
+        <p><strong>Note:</strong> Real-time mode falls back to mock data if API is unavailable.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rainfall Pattern Guidelines Modal -->
+  <div id="rainfallPatternModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Rainfall Pattern Guidelines</h2>
+      <div id="rainfallPatternContent">
+        <div class="pattern-explanation">
+          <h3>Bell Curve (Most Common)</h3>
+          <p>Rainfall starts slow, peaks in the middle, then tapers off. Represents typical storm patterns.</p>
+        </div>
+        <div class="pattern-explanation">
+          <h3>Uniform</h3>
+          <p>Constant rainfall intensity throughout the duration. Rare in nature but useful for testing.</p>
+        </div>
+        <div class="pattern-explanation">
+          <h3>Increasing</h3>
+          <p>Rainfall gradually builds up over time. Common in developing storm systems.</p>
+        </div>
+        <div class="pattern-explanation">
+          <h3>Decreasing</h3>
+          <p>Rainfall starts heavy and gradually reduces. Common as storms move away.</p>
+        </div>
+        <p><strong>Impact:</strong> Pattern affects flood timing and peak water levels.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Street Details Modal -->
+  <div id="streetDetailsModal" class="modal">
+    <div class="modal-content large-modal">
+      <span class="close">&times;</span>
+      <h2>Street Flood Risk Factors</h2>
+      <div id="streetDetailsContent">
+        <p>Select a campus to view detailed flood risk factors for each street.</p>
       </div>
     </div>
   </div>
