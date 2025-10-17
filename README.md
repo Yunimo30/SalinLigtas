@@ -8,7 +8,7 @@
 > A comprehensive digital twin flood prediction system designed to protect academic communities through advanced simulation and real-time monitoring.
 
 ## 🎯 Quick Links
-- [Live Demo](#) (Coming Soon)
+- [Live Demo](https://yunimo30.github.io/SalinLigtas) (WIP)
 - [Documentation](#-documentation)
 - [Feature Requests](https://github.com/Yunimo30/Campus-Flood-Simulator/issues)
 - [Report Bug](https://github.com/Yunimo30/Campus-Flood-Simulator/issues)
