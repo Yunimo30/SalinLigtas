@@ -129,7 +129,7 @@ window.addEventListener("DOMContentLoaded", () => {
   const themeOptions = document.querySelectorAll('.theme-option');
 
   // Load saved theme
-  const savedTheme = localStorage.getItem('theme') || 'system';
+  const savedTheme = localStorage.getItem('theme') || 'light';
   applyTheme(savedTheme);
 
   // Toggle theme menu

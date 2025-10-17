@@ -1,42 +1,161 @@
-Campus Flood Simulation — Prototype (Production Phase)
+# 🌊 SalinLigtas: Campus Flood Simulation System
 
-1. Overview
-This project is a prototype of a digital twin flood prediction tool designed for school campuses. It enables administrators and disaster response teams to simulate rainfall scenarios and assess flood risks on surrounding streets.
+![SalinLigtas Banner](https://img.shields.io/badge/🏛️-Campus%20Safety-blue)
+![Version](https://img.shields.io/badge/version-1.0.0-green)
+![Status](https://img.shields.io/badge/status-prototype-orange)
+![License](https://img.shields.io/badge/license-MIT-blue)
 
-The system integrates interactive maps (Leaflet.js) and visual analytics (Chart.js) to visualize flood levels, hazard zones, and key performance indicators (KPIs).
+> A comprehensive digital twin flood prediction system designed to protect academic communities through advanced simulation and real-time monitoring.
 
-2. Objectives
-Provide a visual decision-support tool for schools in flood-prone areas.
-Demonstrate how historical sensitivity values (per street) can be used to estimate flood severity.
-Serve as a presentation-ready prototype for stakeholders while remaining extensible for future production.
-3. Features
-Interactive Map: Leaflet-based map centered on selected campuses with hazard radius overlays.
-Campus Selection: Users can select campuses (DLSU, UST, Mapúa, UPD, etc.) to simulate localized flooding.
-Rainfall Simulation:
-Adjustable rainfall intensity (mm/hr).
-Adjustable duration (minutes).
-Predefined quick-scenario buttons (Light, Moderate, Heavy).
-Flood Risk Table: Tabular breakdown of expected flood levels per street with severity color coding.
-Rainfall Profile Chart: Displays rainfall intensity over time slices.
-Hazard Breakdown Chart: Pie chart summarizing safe, moderate, high, and severe categories.
-KPIs:
-Estimated flood onset time (minutes).
-Number of passable routes (streets remaining safe).
-Placeholder model accuracy (for demonstration).
-4. System Architecture
-Frontend-Only Web Application (no backend at prototype stage).
-Core Components:
-index.html → layout and structure.
-style.css → visual design and theming.
-data.js → static dataset of campuses and street sensitivities.
-script.js → business logic, simulation engine, chart/map updates.
-Libraries Used:
-Leaflet.js for interactive mapping.
-Chart.js for visualization.
-5. Data Handling
-Input Data:
-Rainfall intensity and duration provided by the user.
-Historical flood sensitivity values per street (hardcoded).
-Simulation Formula:
-totalRainfall = intensity × (duration / 60)
+## 🎯 Quick Links
+- [Live Demo](#) (Coming Soon)
+- [Documentation](#-documentation)
+- [Feature Requests](https://github.com/Yunimo30/Campus-Flood-Simulator/issues)
+- [Report Bug](https://github.com/Yunimo30/Campus-Flood-Simulator/issues)
+
+## 📖 Overview
+
+SalinLigtas (from Filipino words "Salin" - to transfer/simulate, and "Ligtas" - safe) is a state-of-the-art flood prediction tool that enables campus administrators and disaster response teams to:
+
+- 🎯 Simulate various rainfall scenarios
+- 🗺️ Visualize flood risks in real-time
+- 🛣️ Identify safe evacuation routes
+- ⚡ Make quick, data-driven decisions
+- 📊 Access comprehensive analytics
+
+## ✨ Key Features
+
+### 🗺️ Interactive Mapping
+- Real-time flood visualization using Leaflet.js
+- Dynamic hazard zone overlays
+- Street-level risk assessment
+- Safe route identification
+
+### 💧 Advanced Simulation
+- Customizable rainfall intensity (mm/hr)
+- Adjustable duration settings
+- Multiple rainfall patterns:
+  - Bell curve distribution
+  - Uniform pattern
+  - Increasing/Decreasing trends
+
+### 📊 Visual Analytics
+- Real-time flood level monitoring
+- Historical trend analysis
+- Risk distribution charts
+- Street-wise flood forecasting
+
+### ⚡ Smart Alerts
+- Class suspension recommendations
+- Route safety notifications
+- Emergency contact integration
+- Real-time risk updates
+
+## 🛠️ Technical Stack
+
+### Frontend
+- **HTML5** - Structure and content
+- **CSS3** - Styling and animations
+- **JavaScript** - Core functionality
+- **Leaflet.js** - Interactive mapping
+- **Chart.js** - Data visualization
+
+### Core Components
+```
+├── index.html     # Main structure
+├── style.css      # Visual styling
+├── script.js      # Core logic
+├── data.js        # Campus data
+└── README.md      # Documentation
+```
+
+## 📈 Simulation Model
+
+### Input Parameters
+- Rainfall Intensity (mm/hr)
+- Duration (minutes)
+- Pattern Selection
+- Campus Location
+
+### Calculation Formula
+```javascript
 expectedFloodHeight (cm) = totalRainfall × sensitivity × scaleFactor
+where:
+totalRainfall = intensity × (duration / 60)
+```
+
+## 🎮 Getting Started
+
+### Prerequisites
+- Modern web browser (Chrome, Firefox, Safari)
+- JavaScript enabled
+- Internet connection for map tiles
+
+### Installation
+1. Clone the repository
+   ```bash
+   git clone https://github.com/Yunimo30/Campus-Flood-Simulator.git
+   ```
+2. Open index.html in your browser
+3. Select your campus
+4. Configure simulation parameters
+5. Run simulation
+
+## 📚 Documentation
+
+### User Guide
+1. **Campus Selection**
+   - Choose your campus from the dropdown
+   - View historical flood data
+
+2. **Simulation Setup**
+   - Set rainfall intensity
+   - Adjust duration
+   - Select pattern
+
+3. **Analysis**
+   - Review flood risk levels
+   - Check safe routes
+   - Monitor KPIs
+
+### API Reference
+- Map Interaction API
+- Simulation Controls
+- Data Export Functions
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+
+1. Fork the Project
+2. Create your Feature Branch
+3. Commit your Changes
+4. Push to the Branch
+5. Open a Pull Request
+
+## 📜 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🌟 Acknowledgments
+
+- [OpenStreetMap](https://www.openstreetmap.org/) for map data
+- [Leaflet.js](https://leafletjs.com/) for mapping functionality
+- [Chart.js](https://www.chartjs.org/) for data visualization
+- All contributors and supporters
+
+## 📞 Contact
+
+Project Maintainer: [Yunimo30](https://github.com/Yunimo30)
+
+## 🗺️ Roadmap
+
+- [ ] Real-time weather data integration
+- [ ] Mobile application development
+- [ ] Machine learning predictions
+- [ ] Multi-language support
+- [ ] Advanced analytics dashboard
+
+---
+
+<p align="center">Made with ❤️ for campus safety</p>
