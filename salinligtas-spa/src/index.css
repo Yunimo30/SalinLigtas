@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #f4f5f8;
+  --card: #ffffff;
+  --muted: #96a1ad;
+  --accent: #1e40af;
+  --green: #22c55e;
+  --amber: #fbbf24;
+  --orange: #f97316;
+  --red: #ef4444;
+}
+
+.dark {
+  --bg: #0f1419;
+  --card: #1e293b;
+  --muted: #ffffff;
+  --accent: #2563eb;
+  --green: #34d399;
+  --amber: #fbbf24;
+  --orange: #fb923c;
+  --red: #f87171;
+}
+
+/* Base styles */
+body {
+  @apply bg-[var(--bg)] text-gray-800 dark:text-gray-200 min-h-screen;
+  font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+}
+
+/* Card styles */
+.card {
+  @apply bg-[var(--card)] rounded-xl shadow-lg p-4;
+}
