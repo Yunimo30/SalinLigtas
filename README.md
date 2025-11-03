@@ -6,6 +6,12 @@
 
 A comprehensive predictive flood simulation and monitoring system designed for Philippine universities and campuses. SalinLigtas integrates real-time weather data, historical flood patterns, and advanced modeling to help educational institutions anticipate flooding, plan evacuations, and make informed suspension decisions.
 
+##  Quick Links
+- [Live Demo](https://yunimo30.github.io/SalinLigtas) (WIP)
+- [Documentation](#-documentation)
+- [Feature Requests](https://github.com/Yunimo30/Campus-Flood-Simulator/issues)
+- [Report Bug](https://github.com/Yunimo30/Campus-Flood-Simulator/issues)
+
 ## 🌟 Overview
 
 SalinLigtas (Filipino for "Safe and Secure") is a web-based application that provides:

@@ -1,0 +1,431 @@
+/* Emergency Hub Styles */
+.emergency-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.emergency-header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e6e9ee;
+}
+
+.emergency-header h1 {
+  font-size: 32px;
+  color: var(--accent);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.emergency-subtitle {
+  font-size: 16px;
+  color: var(--muted);
+  margin-bottom: 15px;
+}
+
+.emergency-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+/* Alert Card */
+.alerts-card {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border: 1px solid #e6e9ee;
+  height: 500px;
+  display: flex;
+  flex-direction: column;
+}
+
+.alert-filters {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e6e9ee;
+}
+
+.alert-filter {
+  padding: 6px 12px;
+  border: none;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 13px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.alert-filter.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.alerts-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.alert-item {
+  padding: 12px;
+  border-radius: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  transition: transform 0.2s;
+}
+
+.alert-item.high {
+  background: rgba(239, 68, 68, 0.1);
+  border-left: 4px solid var(--red);
+}
+
+.alert-item.warning {
+  background: rgba(251, 191, 36, 0.1);
+  border-left: 4px solid var(--amber);
+}
+
+.alert-item.info {
+  background: rgba(59, 130, 246, 0.1);
+  border-left: 4px solid var(--accent);
+}
+
+/* Evacuation System */
+.evacuation-card {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border: 1px solid #e6e9ee;
+  height: 500px;
+  display: flex;
+  flex-direction: column;
+}
+
+.campus-selector {
+  margin-bottom: 15px;
+}
+
+.campus-selector label {
+  display: block;
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.styled-select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #e6e9ee;
+  border-radius: 8px;
+  background: var(--card);
+  color: inherit;
+  font-size: 14px;
+}
+
+.evacuation-status {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.status-item {
+  background: var(--bg);
+  padding: 12px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.status-item i {
+  font-size: 20px;
+  color: var(--accent);
+  margin-bottom: 5px;
+}
+
+.status-label {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 3px;
+}
+
+.status-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.map-container {
+  flex: 1;
+  margin-bottom: 15px;
+}
+
+#evacuationMap {
+  height: 100%;
+  border-radius: 8px;
+  border: 1px solid #e6e9ee;
+}
+
+.map-controls {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.map-controls button {
+  padding: 8px 12px;
+  background: var(--bg);
+  border: 1px solid #e6e9ee;
+  border-radius: 6px;
+  color: var(--muted);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.map-controls button:hover {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+/* Emergency Resources */
+.resources-card {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border: 1px solid #e6e9ee;
+  height: 500px;
+  display: flex;
+  flex-direction: column;
+}
+
+.resources-grid {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+}
+
+.resource-section {
+  background: var(--bg);
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.resource-section h4 {
+  font-size: 16px;
+  color: var(--accent);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.first-aid-tips {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.tip-item {
+  background: var(--card);
+  padding: 12px;
+  border-radius: 6px;
+}
+
+.tip-item h5 {
+  color: var(--accent);
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.tip-item ul {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.tip-item li {
+  margin-bottom: 5px;
+}
+
+.supplies-checklist {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  background: var(--card);
+  border-radius: 6px;
+}
+
+.checklist-item input[type="checkbox"] {
+  accent-color: var(--accent);
+}
+
+.checklist-item label {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* Emergency Procedures */
+.procedures-card {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border: 1px solid #e6e9ee;
+  height: 500px;
+  display: flex;
+  flex-direction: column;
+}
+
+.procedures-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.procedure-tab {
+  padding: 8px 16px;
+  background: var(--bg);
+  border: none;
+  border-radius: 6px;
+  color: var(--muted);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.procedure-tab.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.procedure-content {
+  display: none;
+  padding: 15px;
+  background: var(--bg);
+  border-radius: 8px;
+  flex: 1;
+}
+
+.procedure-content.active {
+  display: block;
+}
+
+.procedure-steps {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.procedure-steps li {
+  margin-bottom: 10px;
+}
+
+/* Emergency Actions */
+.emergency-actions {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.action-btn {
+  padding: 12px 24px;
+  border-radius: 8px;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.action-btn.primary {
+  background: var(--accent);
+  color: #fff;
+}
+
+.action-btn {
+  background: var(--bg);
+  color: var(--muted);
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Dark Mode Support */
+.dark .emergency-container {
+  color: #e0e0e0;
+}
+
+.dark .alert-item.high {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+.dark .alert-item.warning {
+  background: rgba(251, 191, 36, 0.2);
+}
+
+.dark .alert-item.info {
+  background: rgba(59, 130, 246, 0.2);
+}
+
+.dark .status-item,
+.dark .resource-section,
+.dark .procedure-content,
+.dark .tip-item,
+.dark .checklist-item {
+  background: var(--card);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .emergency-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .evacuation-status {
+    grid-template-columns: 1fr;
+  }
+
+  .emergency-actions {
+    flex-direction: column;
+  }
+
+  .action-btn {
+    width: 100%;
+  }
+}

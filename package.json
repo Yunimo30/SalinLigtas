@@ -1,0 +1,15 @@
+{
+  "name": "salinligtas",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Campus Flood Simulation System with Weather Integration",
+  "main": "app.js",
+  "scripts": {
+    "start": "python -m http.server 8000"
+  },
+  "dependencies": {
+    "chart.js": "^4.4.0",
+    "firebase": "^12.5.0",
+    "leaflet": "^1.9.4"
+  }
+}

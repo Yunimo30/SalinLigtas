@@ -1,0 +1,218 @@
+.validation-container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.validation-header {
+    margin-bottom: 20px;
+}
+
+.validation-header h2 {
+    font-size: 24px;
+    color: var(--primary);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.validation-controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.validation-progress {
+    height: 4px;
+    background-color: #f0f0f0;
+    border-radius: 2px;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.progress-bar {
+    height: 100%;
+    background-color: var(--primary);
+    border-radius: 2px;
+    transition: width 0.3s ease;
+    width: 0%;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(
+        90deg,
+        rgba(255,255,255,0) 0%,
+        rgba(255,255,255,0.3) 50%,
+        rgba(255,255,255,0) 100%
+    );
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.validation-message {
+    text-align: center;
+    padding: 20px;
+    margin: 10px 0;
+    border-radius: 6px;
+}
+
+.validation-steps {
+    margin-top: 15px;
+    text-align: left;
+}
+
+.validation-steps .step {
+    padding: 8px;
+    margin: 5px 0;
+    color: #666;
+    font-size: 0.9em;
+    border-left: 3px solid #e5e7eb;
+    transition: all 0.3s ease;
+}
+
+.validation-steps .step.active {
+    border-left-color: var(--primary);
+    color: var(--primary);
+    background: #f8fafc;
+}
+
+.validation-steps .step.done {
+    border-left-color: #22c55e;
+    color: #22c55e;
+}
+
+.validation-message.success {
+    background-color: #ecfdf5;
+    color: #059669;
+    border: 1px solid #a7f3d0;
+}
+
+.update-actions {
+    margin-top: 15px;
+    text-align: center;
+}
+
+.coordinate-update {
+    background: #f0f7ff;
+    padding: 12px;
+    border-radius: 4px;
+    margin-top: 10px;
+    font-family: monospace;
+    font-size: 0.9em;
+    position: relative;
+}
+
+.coordinate-update::before {
+    content: 'Suggested Update';
+    position: absolute;
+    top: -10px;
+    left: 10px;
+    background: #fff;
+    padding: 0 5px;
+    font-size: 0.8em;
+    color: var(--primary);
+    border-radius: 3px;
+}
+
+.validation-results {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.validation-campus-section {
+    padding: 20px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.validation-campus-section:last-child {
+    border-bottom: none;
+}
+
+.validation-summary {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 6px;
+    margin: 10px 0;
+}
+
+.validation-issues, .validation-recommendations {
+    margin-top: 15px;
+}
+
+.validation-issues h4, .validation-recommendations h4 {
+    color: var(--accent);
+    margin-bottom: 10px;
+}
+
+.validation-issues ul, .validation-recommendations ul {
+    list-style: none;
+    padding: 0;
+}
+
+.validation-issues li, .validation-recommendations li {
+    background: #fff;
+    padding: 12px;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    border: 1px solid #f0f0f0;
+}
+
+.confidence-high {
+    color: #22c55e;
+}
+
+.confidence-medium {
+    color: #f59e0b;
+}
+
+.confidence-low {
+    color: #ef4444;
+}
+
+.error {
+    color: #ef4444;
+    padding: 10px;
+    background: #fee2e2;
+    border-radius: 4px;
+    margin: 10px 0;
+}
+
+.validation-message {
+    text-align: center;
+    padding: 20px;
+    color: var(--primary);
+    font-weight: 500;
+}
+
+#validationModal .modal-content {
+    max-width: 800px;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.validation-actions {
+    position: sticky;
+    bottom: 0;
+    background: white;
+    padding: 15px 0;
+    border-top: 1px solid #f0f0f0;
+}

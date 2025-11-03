@@ -1500,17 +1500,17 @@ window.addEventListener("DOMContentLoaded", () => {
 
     if (!nearestSafeZone) return;
 
-    // Build graph: nodes are streets + campus + safeZone
-    const nodes = campus.streets.map(street => ({
-      id: street.name,
-      coords: street.path[street.path.length - 1], // use end for heuristic
-      risk: classifyByHeight(expectedFloodHeightCm(intensity, duration, street, campus)).level,
-      path: street.path
-    }));
-    nodes.push({ id: 'campus', coords: campus.coords, risk: 'Safe', path: [campus.coords] });
-    nodes.push({ id: 'safeZone', coords: nearestSafeZone.coords, risk: 'Safe', path: [nearestSafeZone.coords] });
-
-    const graph = {};
+  // Build graph: nodes are streets + campus + safeZone
+  const nodes = campus.streets.map(street => ({
+    id: street.name,
+    coords: street.path[street.path.length - 1], // use end for heuristic
+    risk: classifyByHeight(expectedFloodHeightCm(intensity, duration, street, campus)).level,
+    path: street.path,
+    startCoords: street.path[0], // Add start coordinates
+    endCoords: street.path[street.path.length - 1] // Add end coordinates
+  }));
+  nodes.push({ id: 'campus', coords: campus.coords, risk: 'Safe', path: [campus.coords], startCoords: campus.coords, endCoords: campus.coords });
+  nodes.push({ id: 'safeZone', coords: nearestSafeZone.coords, risk: 'Safe', path: [nearestSafeZone.coords], startCoords: nearestSafeZone.coords, endCoords: nearestSafeZone.coords });    const graph = {};
     nodes.forEach(node => {
       graph[node.id] = [];
     });
