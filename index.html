@@ -4,10 +4,12 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>SalinLigtas</title>
+  <link rel="icon" type="image/png" href="favicon/favicon.ico" />
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="styles/validation.css" />
   <link rel="stylesheet" href="styles/weatherForecast.css" />
   <link rel="stylesheet" href="styles/emergency3.css" />
+  <link rel="stylesheet" href="styles/help-units.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -22,6 +24,7 @@
       <span></span>
     </button>
     <nav class="nav" id="nav">
+      <img src="logo/logo.png" alt="SalinLigtas Logo" class="nav-logo">
       <a href="#" class="nav-link active" data-section="home">Home</a>
       <a href="#" class="nav-link" data-section="plan-monitor">Plan & Monitor</a>
       <a href="#" class="nav-link" data-section="weather-bulletin">Weather Bulletin</a>
@@ -53,7 +56,8 @@
 
   <section id="home" class="page-section active">
     <div class="hero-section">
-      <h1>Welcome to SalinLigtas</h1>
+      <img src="logo/logo.png" alt="SalinLigtas Logo" class="hero-logo">
+      <h1>Welcome to Salinligtas</h1>
       <p>A comprehensive flood monitoring and response system for campuses. Stay informed, plan ahead, and respond effectively to flood risks.</p>
     </div>
 
@@ -102,7 +106,7 @@
     </div>
 
     <div class="tutorial-section">
-      <h2>How to Use SalinLigtas</h2>
+      <h2>How to Use Salinligtas</h2>
       <div class="tutorial-steps">
         <div class="tutorial-step">
           <div class="step-number floating">1</div>
@@ -205,17 +209,11 @@
 
         <div class="control-actions">
           <button id="runSim" class="run-btn primary"><i class="fas fa-play"></i> Run Simulation</button>
+          <button id="help-units-toggle" class="help-toggle-btn secondary">
+            <i class="fas fa-question-circle"></i> Help & Units
+          </button>
         </div>
 
-        <div class="control-footer">
-          <div class="unit-toggle">
-            <button id="unitToggle" class="run-btn secondary">Units: cm</button>
-            <button id="howToUseBtn" class="run-btn secondary">How to Use</button>
-          </div>
-          <div class="notes small">
-            <p><i class="fas fa-info-circle"></i> <strong>Tip:</strong> Sensitivities are based on historical data. Use real sensor data for accurate results.</p>
-          </div>
-        </div>
       </div>
 
       <div id="forecastTab" class="tab-content" style="display:none;">
@@ -280,11 +278,6 @@
             </table>
           </div>
         </div>
-
-      <div class="results-section">
-        <h4><i class="fas fa-route"></i> Safe Route Identifier</h4>
-        <div id="safestRoutes" class="safe-routes-container"></div>
-      </div>
 
       <div class="results-section">
         <h4><i class="fas fa-chart-area"></i> Rainfall Profile</h4>
@@ -844,18 +837,7 @@
         </div>
       </div>
 
-      <!-- Quick Action Buttons -->
-      <div class="emergency-actions">
-        <button class="action-btn primary" onclick="reportEmergency()">
-          <i class="fas fa-exclamation-triangle"></i> Report Emergency
-        </button>
-        <button class="action-btn" onclick="downloadEmergencyPlan()">
-          <i class="fas fa-download"></i> Download Emergency Plan
-        </button>
-        <button class="action-btn" onclick="showEmergencyTraining()">
-          <i class="fas fa-graduation-cap"></i> Emergency Training
-        </button>
-      </div>
+      <!-- Emergency actions removed as they were overlapping with the map -->
     </div>
   </section>
 
@@ -1187,6 +1169,25 @@
   <script src="scripts/emergencyContacts.js"></script>
   <script src="scripts/evacuationMap.js"></script>
   <script src="scripts/emergencyProcedures.js"></script>
+  <!-- Help & Units Panel Modal -->
+  <div id="helpUnitsModal" class="help-units-modal">
+    <div class="help-units-content">
+      <div class="help-units-header">
+        <h3><i class="fas fa-info-circle"></i> Help & Settings</h3>
+      </div>
+      <div class="help-units-body">
+        <div class="unit-toggle">
+          <button id="unitToggle" class="run-btn secondary">Units: cm</button>
+          <button id="howToUseBtn" class="run-btn secondary">How to Use</button>
+        </div>
+        <div class="notes small">
+          <p><i class="fas fa-info-circle"></i> <strong>Tip:</strong> Sensitivities are based on historical data. Use real sensor data for accurate results.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="scripts/helpUnits.js"></script>
   <script src="script.js"></script>
   <script src="validation.js"></script>
   <script src="controllers/authController.js"></script>
