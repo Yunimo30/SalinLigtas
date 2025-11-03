@@ -196,8 +196,7 @@ window.addEventListener("DOMContentLoaded", () => {
   // Street layer group
   const streetLayer = L.layerGroup().addTo(map);
 
-  // Path layer for safe routes
-  const pathLayer = L.layerGroup().addTo(map);
+
 
   // Suspension overlay
   const overlay = document.createElement('div');
@@ -217,7 +216,7 @@ window.addEventListener("DOMContentLoaded", () => {
   const kpiAccuracy = document.getElementById("kpiAccuracy");
   const kpiSuspension = document.getElementById("kpiSuspension");
   const kpiHeightComparison = document.getElementById("kpiHeightComparison");
-  const safestRoutesDiv = document.getElementById("safestRoutes");
+
   const exportBtn = document.getElementById("exportBtn");
   const alertsDiv = document.getElementById("alerts");
 
@@ -343,43 +342,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
 
-  // Safe Route Identifier: rank streets by safety
-  function rankSafestRoutes(overrideIntensity = null, overrideDuration = null) {
-    const campusIndex = parseInt(campusSelect.value);
-    const campus = campuses[campusIndex];
-    const intensity = overrideIntensity !== null ? overrideIntensity : (parseFloat(intensityInput.value) || 0);
-    const duration = overrideDuration !== null ? overrideDuration : (parseFloat(durationInput.value) || 0);
-
-    // Get current flood heights
-    const streetRisks = campus.streets.map(street => {
-      const height = expectedFloodHeightCm(intensity, duration, street, campus);
-      const cls = classifyByHeight(height);
-      const descriptiveLabel = getDescriptiveRisk(height);
-      return { name: street.name, height, level: cls.level, css: cls.css, desc: descriptiveLabel };
-    });
-
-    // Sort by height ascending (safest first)
-    streetRisks.sort((a, b) => a.height - b.height);
-
-    // Display ranked list
-    let html = '<ol>';
-    streetRisks.forEach(street => {
-      html += `<li><strong>${street.name}</strong> - ${convertHeight(street.height)} ${currentUnit} (${street.level}) <small style="color:#666;">${street.desc}</small></li>`;
-    });
-    html += '</ol>';
-
-    // Add button for pathfinding
-    html += '<br><button id="findPathBtn" class="run-btn">Find Path to Safe Zone</button>';
-
-    safestRoutesDiv.innerHTML = html;
-    safestRoutesDiv.style.display = 'block';
-
-    // Attach event listener to the button
-    document.getElementById("findPathBtn").addEventListener("click", findPathToSafeZone);
-  }
-
-  // Reset selection button or clear
-  // For now, add a clear button if needed, but skip for prototype
+  // Safe Route Identifier functionality has been removed
 
   // Calculation helpers
   function getHistoricalAvg(campus) {
@@ -525,7 +488,7 @@ window.addEventListener("DOMContentLoaded", () => {
   // Clear previous street markers and labels
   streetLayer.clearLayers();
 
-  pathLayer.clearLayers();
+
 
     // update table rows (per-street)
     floodTbody.innerHTML = "";
@@ -716,7 +679,6 @@ window.addEventListener("DOMContentLoaded", () => {
       forecastChart = null;
     }
     await runSimulation();
-    rankSafestRoutes();
   });
   campusSelect.addEventListener("change", async () => {
     const campusIndex = parseInt(campusSelect.value);
@@ -850,7 +812,6 @@ window.addEventListener("DOMContentLoaded", () => {
     const hour = parseInt(forecastHourSlider.value);
     if (hourlyData[hour]) {
       runSimulation('forecast', hourlyData[hour]);
-      rankSafestRoutes(hourlyData[hour].intensity, 60);
     }
   });
 
@@ -1477,150 +1438,7 @@ window.addEventListener("DOMContentLoaded", () => {
     }
   };
 
-  // Pathfinding to safe zone using A* on street graph
-  function findPathToSafeZone() {
-    const campusIndex = parseInt(campusSelect.value);
-    const campus = campuses[campusIndex];
-    const intensity = parseFloat(intensityInput.value) || 0;
-    const duration = parseFloat(durationInput.value) || 0;
-
-    // Clear previous paths
-    pathLayer.clearLayers();
-
-    // Find nearest safe zone
-    let nearestSafeZone = null;
-    let minDist = Infinity;
-    campus.safeZones.forEach(sz => {
-      const dist = haversine(campus.coords[0], campus.coords[1], sz.coords[0], sz.coords[1]);
-      if (dist < minDist) {
-        minDist = dist;
-        nearestSafeZone = sz;
-      }
-    });
-
-    if (!nearestSafeZone) return;
-
-  // Build graph: nodes are streets + campus + safeZone
-  const nodes = campus.streets.map(street => ({
-    id: street.name,
-    coords: street.path[street.path.length - 1], // use end for heuristic
-    risk: classifyByHeight(expectedFloodHeightCm(intensity, duration, street, campus)).level,
-    path: street.path,
-    startCoords: street.path[0], // Add start coordinates
-    endCoords: street.path[street.path.length - 1] // Add end coordinates
-  }));
-  nodes.push({ id: 'campus', coords: campus.coords, risk: 'Safe', path: [campus.coords], startCoords: campus.coords, endCoords: campus.coords });
-  nodes.push({ id: 'safeZone', coords: nearestSafeZone.coords, risk: 'Safe', path: [nearestSafeZone.coords], startCoords: nearestSafeZone.coords, endCoords: nearestSafeZone.coords });    const graph = {};
-    nodes.forEach(node => {
-      graph[node.id] = [];
-    });
-
-    // Connect streets based on proximity
-    campus.streets.forEach(street => {
-      const node = nodes.find(n => n.id === street.name);
-      campus.streets.forEach(other => {
-        if (street.name !== other.name) {
-          const otherNode = nodes.find(n => n.id === other.name);
-          const dist1 = haversine(node.coords[0], node.coords[1], otherNode.path[0][0], otherNode.path[0][1]);
-          const dist2 = haversine(node.coords[0], node.coords[1], otherNode.coords[0], otherNode.coords[1]);
-          const minDist = Math.min(dist1, dist2);
-          if (minDist < 1000) { // increased threshold
-            let weight = minDist;
-            if (node.risk === 'Impassable' || otherNode.risk === 'Impassable') weight = 10000; // High cost but traversable
-            else if (node.risk === 'Caution' || otherNode.risk === 'Caution') weight *= 2;
-            graph[node.id].push({ to: other.id, weight });
-          }
-        }
-      });
-    });
-
-    // Connect campus to all nearby streets (within 500m)
-    nodes.forEach(node => {
-      if (node.id !== 'campus' && node.id !== 'safeZone') {
-        const dist = haversine(campus.coords[0], campus.coords[1], node.path[0][0], node.path[0][1]);
-        if (dist < 500) {
-          let weight = dist;
-          const street = campus.streets.find(s => s.name === node.id);
-          const streetRisk = classifyByHeight(expectedFloodHeightCm(intensity, duration, street, campus)).level;
-          if (streetRisk === 'Impassable') weight = dist + 10000;
-          else if (streetRisk === 'Caution') weight = dist * 2;
-          graph['campus'].push({ to: node.id, weight });
-        }
-      }
-    });
-
-    // Connect all nearby streets to safeZone (within 500m)
-    nodes.forEach(node => {
-      if (node.id !== 'campus' && node.id !== 'safeZone') {
-        const dist = haversine(nearestSafeZone.coords[0], nearestSafeZone.coords[1], node.coords[0], node.coords[1]);
-        if (dist < 500) {
-          let weight = dist;
-          const street = campus.streets.find(s => s.name === node.id);
-          const streetRisk = classifyByHeight(expectedFloodHeightCm(intensity, duration, street, campus)).level;
-          if (streetRisk === 'Impassable') weight = dist + 10000;
-          else if (streetRisk === 'Caution') weight = dist * 2;
-          graph[node.id].push({ to: 'safeZone', weight });
-        }
-      }
-    });
-
-    // A* algorithm
-    function aStar(start, goal, graph) {
-      const openSet = [start];
-      const cameFrom = {};
-      const gScore = {};
-      const fScore = {};
-      gScore[start] = 0;
-      fScore[start] = haversine(nodes.find(n => n.id === start).coords[0], nodes.find(n => n.id === start).coords[1], nodes.find(n => n.id === goal).coords[0], nodes.find(n => n.id === goal).coords[1]);
-      while (openSet.length > 0) {
-        const current = openSet.reduce((a, b) => (fScore[a] || Infinity) < (fScore[b] || Infinity) ? a : b);
-        if (current === goal) {
-          const path = [current];
-          let temp = current;
-          while (cameFrom[temp]) {
-            temp = cameFrom[temp];
-            path.unshift(temp);
-          }
-          return path;
-        }
-        openSet.splice(openSet.indexOf(current), 1);
-        graph[current].forEach(neighbor => {
-          const tentativeG = gScore[current] + neighbor.weight;
-          if (tentativeG < (gScore[neighbor.to] || Infinity)) {
-            cameFrom[neighbor.to] = current;
-            gScore[neighbor.to] = tentativeG;
-            fScore[neighbor.to] = tentativeG + haversine(nodes.find(n => n.id === neighbor.to).coords[0], nodes.find(n => n.id === neighbor.to).coords[1], nodes.find(n => n.id === goal).coords[0], nodes.find(n => n.id === goal).coords[1]);
-            if (!openSet.includes(neighbor.to)) openSet.push(neighbor.to);
-          }
-        });
-      }
-      return null; // no path
-    }
-
-    const pathNodes = aStar('campus', 'safeZone', graph);
-    if (!pathNodes) {
-      alert("No safe path found to a safe zone.");
-      return;
-    }
-
-    // Draw the path: straight lines between nodes
-    const pathCoords = pathNodes.map(nodeId => nodes.find(n => n.id === nodeId).coords);
-    // Remove consecutive duplicates
-    const uniqueCoords = pathCoords.filter((coord, index, arr) => index === 0 || coord[0] !== arr[index-1][0] || coord[1] !== arr[index-1][1]);
-
-    const pathLine = L.polyline(uniqueCoords, {
-      color: 'blue',
-      weight: 5,
-      opacity: 0.8
-    }).addTo(pathLayer);
-
-    // Add markers
-    L.marker(campus.coords).addTo(pathLayer).bindPopup(`Start: ${campus.name}`);
-    L.marker(nearestSafeZone.coords).addTo(pathLayer).bindPopup(`Safe Zone: ${nearestSafeZone.name} (${nearestSafeZone.type})`);
-
-  // Fit map to path
-    map.fitBounds(pathLine.getBounds());
-  }
+  // Path finding functionality has been removed
 
   // Emergency Hub Functions
   function initializeEmergencyHub() {
