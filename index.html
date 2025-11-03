@@ -3,8 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Campus Flood Simulation — Prototype</title>
+  <title>SalinLigtas</title>
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="styles/validation.css" />
+  <link rel="stylesheet" href="styles/weatherForecast.css" />
+  <link rel="stylesheet" href="styles/emergency3.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -150,13 +153,16 @@
       </div>
 
       <div id="simulationTab" class="tab-content">
-        <div class="control-group">
-          <label for="campusSelect"><i class="fas fa-map-marker-alt"></i> Select Campus</label>
-          <select id="campusSelect"></select>
-        </div>
+          <div class="control-group">
+            <label for="campusSelect"><i class="fas fa-map-marker-alt"></i> Select Campus</label>
+            <select id="campusSelect"></select>
+            <button id="validateCoordinatesBtn" class="run-btn secondary" style="margin-top: 10px;">
+              <i class="fas fa-check-circle"></i> Validate Coordinates
+            </button>
+          </div>
 
-        <div class="control-group">
-          <label for="intensity"><i class="fas fa-cloud-rain"></i> Rainfall Intensity (mm/hr) <span id="intensityHelp" class="help-icon" title="Click for guidelines">?</span></label>
+          <div class="control-group">
+            <label for="intensity"><i class="fas fa-cloud-rain"></i> Rainfall Intensity (mm/hr) <span id="intensityHelp" class="help-icon" title="Click for guidelines">?</span></label>
           <input id="intensity" type="number" value="30" min="0" max="200" />
         </div>
 
@@ -262,16 +268,22 @@
         <p class="results-subtitle">Analysis and insights from your simulation</p>
       </div>
 
-      <div class="results-section">
-        <h4><i class="fas fa-road"></i> Flood Risk by Street</h4>
-        <div class="table-container">
-          <table id="floodTable" class="flood-table">
-            <thead>
-              <tr><th>Street</th><th>Risk</th><th>Expected height (cm)</th><th>Forecast Peak (cm)</th></tr>
-            </thead>
-            <tbody></tbody>
-          </table>
+      <div class="results-content">
+        <div class="results-section">
+          <h4><i class="fas fa-road"></i> Flood Risk by Street</h4>
+          <div class="table-container">
+            <table id="floodTable" class="flood-table">
+              <thead>
+                <tr><th>Street</th><th>Risk</th><th>Expected height (cm)</th><th>Forecast Peak (cm)</th></tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
         </div>
+
+      <div class="results-section">
+        <h4><i class="fas fa-route"></i> Safe Route Identifier</h4>
+        <div id="safestRoutes" class="safe-routes-container"></div>
       </div>
 
       <div class="results-section">
@@ -316,22 +328,21 @@
         </div>
       </div>
 
-      <div class="results-section">
-        <h4><i class="fas fa-route"></i> Safe Route Identifier</h4>
-        <div id="safestRoutes"></div>
-      </div>
+      </div> <!-- End of results-content -->
 
-      <div class="results-actions">
-        <button id="hotlinesBtn" class="run-btn secondary"><i class="fas fa-phone"></i> Emergency Hotlines</button>
-        <button id="exportBtn" class="run-btn secondary"><i class="fas fa-download"></i> Export Results</button>
-      </div>
+      <div class="results-footer">
+        <div class="results-actions">
+          <button id="hotlinesBtn" class="run-btn secondary"><i class="fas fa-phone"></i> Emergency Hotlines</button>
+          <button id="exportBtn" class="run-btn secondary"><i class="fas fa-download"></i> Export Results</button>
+        </div>
 
-      <div id="alerts" class="alert-section" style="display:none;">
-        <i class="fas fa-exclamation-triangle"></i>
-        <span>Alert message will appear here</span>
-      </div>
+        <div id="alerts" class="alert-section" style="display:none;">
+          <i class="fas fa-exclamation-triangle"></i>
+          <span>Alert message will appear here</span>
+        </div>
 
-      <div id="routeSummary" class="route-summary" style="display:none;"></div>
+        <div id="routeSummary" class="route-summary" style="display:none;"></div>
+      </div>
     </aside>
   </section>
 
@@ -363,6 +374,7 @@
         </div>
       </div>
 
+            <!-- Weather Grid -->
       <div class="weather-grid">
         <!-- Current Weather -->
         <div class="weather-card current-weather">
@@ -393,17 +405,102 @@
           </div>
         </div>
 
-        <!-- Weather Alerts -->
+        <!-- Enhanced Weather Alerts -->
         <div class="weather-card alerts-card">
-          <h3><i class="fas fa-exclamation-triangle"></i> Weather Alerts</h3>
+          <h3>
+            <i class="fas fa-exclamation-triangle"></i> Weather Alerts
+            <span class="alert-controls">
+              <button class="alert-filter-btn" data-filter="all">All</button>
+              <button class="alert-filter-btn" data-filter="active">Active</button>
+              <button class="alert-filter-btn" data-filter="expired">Expired</button>
+            </span>
+          </h3>
           <div id="weatherAlerts" class="alerts-container">
-            <div class="alert-item warning">
-              <i class="fas fa-exclamation-circle"></i>
-              <div class="alert-content">
-                <strong>Heavy Rain Warning</strong>
-                <p>Heavy rainfall expected in the next 24 hours. Monitor flood conditions.</p>
-              </div>
+            <!-- Alerts will be dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Weather Graphs -->
+        <!-- Weather Trends -->
+        <div class="weather-card graphs-card">
+          <h3><i class="fas fa-chart-line"></i> Weather Trends</h3>
+          <div class="data-source-disclaimer">
+            <i class="fas fa-info-circle"></i>
+            <span>Data Source: OpenWeatherMap API. When API is unavailable, sample data is shown for demonstration.</span>
+          </div>
+          <div class="weather-graphs-container">
+            <div class="metric-selector">
+              <select id="weatherMetricSelect" class="metric-select">
+                <option value="precipitation">Precipitation</option>
+                <option value="temperature">Temperature</option>
+                <option value="wind">Wind Speed</option>
+                <option value="humidity">Humidity</option>
+              </select>
             </div>
+            <div class="graph-content">
+              <canvas id="weatherTrendsChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Radar and Satellite View -->
+        <div class="weather-card radar-card">
+          <h3><i class="fas fa-satellite"></i> Radar & Satellite</h3>
+          <div class="data-source-disclaimer">
+            <i class="fas fa-info-circle"></i>
+            <span>Data Source: PAGASA Doppler Radar Network. Currently showing simulated view for demonstration.</span>
+          </div>
+          <div class="view-controls">
+            <button class="view-btn active" data-view="radar">Radar</button>
+            <button class="view-btn" data-view="satellite">Satellite</button>
+            <button class="view-btn" data-view="composite">Composite</button>
+          </div>
+          <div id="radarContainer" class="radar-container">
+            <!-- Radar/Satellite view will be loaded here -->
+          </div>
+          <div class="radar-timeline">
+            <input type="range" id="radarTimeline" min="0" max="12" value="12">
+            <div class="timeline-labels">
+              <span>-6h</span>
+              <span>Now</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Location Comparison -->
+        <div class="weather-card comparison-card">
+          <h3>
+            <i class="fas fa-map-marker-alt"></i> Location Comparison
+            <button class="add-location-btn" id="addLocationBtn">
+              <i class="fas fa-plus"></i> Add Location
+            </button>
+          </h3>
+          <div class="data-source-disclaimer">
+            <i class="fas fa-info-circle"></i>
+            <span>Data Source: Real-time OpenWeatherMap API data for selected Philippine cities. Fallback to sample data if API is unavailable.</span>
+          </div>
+          <div id="weatherComparison" class="comparison-container">
+            <!-- Location comparisons will be dynamically added -->
+          </div>
+        </div>
+
+        <!-- Historical Analysis -->
+        <div class="weather-card analysis-card">
+          <h3><i class="fas fa-history"></i> Historical Analysis</h3>
+          <div class="data-source-disclaimer">
+            <i class="fas fa-info-circle"></i>
+            <span>Historical data based on PAGASA records and OpenWeatherMap historical API. Currently showing sample data for demonstration purposes. Real historical analysis will be available once connected to weather data providers.</span>
+          </div>
+          <div class="analysis-controls">
+            <select id="analysisTimeframe">
+              <option value="7">Past Week</option>
+              <option value="30">Past Month</option>
+              <option value="90">Past 3 Months</option>
+              <option value="365">Past Year</option>
+            </select>
+          </div>
+          <div id="historicalAnalysis" class="analysis-container">
+            <!-- Historical analysis will be displayed here -->
           </div>
         </div>
 
@@ -411,26 +508,18 @@
         <div class="weather-card forecast-card">
           <h3><i class="fas fa-clock"></i> 24-Hour Forecast</h3>
           <div id="hourlyForecast" class="forecast-container">
-            <!-- Hourly forecast items will be populated by JS -->
           </div>
         </div>
 
         <!-- 7-Day Forecast -->
         <div class="weather-card forecast-card">
-          <h3><i class="fas fa-calendar-alt"></i> 7-Day Forecast</h3>
+          <h3><i class="fas fa-calendar-week"></i> 7-Day Forecast</h3>
           <div id="weeklyForecast" class="forecast-container">
-            <!-- Weekly forecast items will be populated by JS -->
           </div>
         </div>
 
-        <!-- Historical Patterns -->
-        <div class="weather-card chart-card">
-          <h3><i class="fas fa-chart-line"></i> Historical Rainfall Patterns</h3>
-          <canvas id="historicalWeatherChart"></canvas>
-        </div>
-
         <!-- Weather Impact Analysis -->
-        <div class="weather-card analysis-card">
+        <div class="weather-card impact-card">
           <h3><i class="fas fa-chart-pie"></i> Weather Impact Analysis</h3>
           <div class="impact-metrics">
             <div class="impact-item">
@@ -444,6 +533,113 @@
             <div class="impact-item">
               <span class="impact-label">Storm Surge Potential</span>
               <span id="stormSurge" class="impact-value medium">Medium</span>
+            </div>
+            <div class="impact-item">
+              <span class="impact-label">Visibility Conditions</span>
+              <span id="visibilityStatus" class="impact-value">Good</span>
+            </div>
+            <div class="impact-item">
+              <span class="impact-label">Wind Advisory</span>
+              <span id="windAdvisory" class="impact-value">Normal</span>
+            </div>
+            <div class="impact-item">
+              <span class="impact-label">Air Quality Index</span>
+              <span id="airQualityIndex" class="impact-value">85 - Moderate</span>
+            </div>
+            <div class="impact-item">
+              <span class="impact-label">UV Index</span>
+              <span id="uvIndex" class="impact-value">7 - High</span>
+            </div>
+            <div class="impact-item">
+              <span class="impact-label">Heat Index</span>
+              <span id="heatIndex" class="impact-value">32°C</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Air Quality & Environmental -->
+        <div class="weather-card air-quality-card">
+          <h3><i class="fas fa-wind"></i> Air Quality & Environment</h3>
+          <div class="data-source-disclaimer">
+            <i class="fas fa-info-circle"></i>
+            <span>Data Source: IQAir API and OpenWeatherMap. Currently showing sample data for demonstration.</span>
+          </div>
+          <div class="air-quality-metrics">
+            <div class="air-quality-main">
+              <div class="aqi-display">
+                <span class="aqi-number" id="aqiNumber">85</span>
+                <span class="aqi-status" id="aqiStatus">Moderate</span>
+              </div>
+              <div class="aqi-bar">
+                <div class="aqi-fill" id="aqiFill" style="width: 85%"></div>
+              </div>
+            </div>
+            <div class="air-quality-details">
+              <div class="pollutant-item">
+                <span class="pollutant-name">PM2.5</span>
+                <span class="pollutant-value" id="pm25Value">25.3 µg/m³</span>
+              </div>
+              <div class="pollutant-item">
+                <span class="pollutant-name">PM10</span>
+                <span class="pollutant-value" id="pm10Value">45.2 µg/m³</span>
+              </div>
+              <div class="pollutant-item">
+                <span class="pollutant-name">NO₂</span>
+                <span class="pollutant-value" id="no2Value">12.1 µg/m³</span>
+              </div>
+              <div class="pollutant-item">
+                <span class="pollutant-name">O₃</span>
+                <span class="pollutant-value" id="o3Value">35.4 µg/m³</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Weather Map -->
+        <div class="weather-card weather-map-card">
+          <h3><i class="fas fa-map"></i> Weather Map</h3>
+          <div class="data-source-disclaimer">
+            <i class="fas fa-info-circle"></i>
+            <span>Data Source: OpenWeatherMap Weather Maps API. Currently showing simulated map for demonstration.</span>
+          </div>
+          <div class="map-controls">
+            <button class="map-layer-btn active" data-layer="precipitation">Precipitation</button>
+            <button class="map-layer-btn" data-layer="temperature">Temperature</button>
+            <button class="map-layer-btn" data-layer="wind">Wind</button>
+            <button class="map-layer-btn" data-layer="pressure">Pressure</button>
+          </div>
+          <div id="weatherMapContainer" class="weather-map-container">
+            <!-- Weather map will be loaded here -->
+          </div>
+        </div>
+
+        <!-- Weather Advisories -->
+        <div class="weather-card advisories-card">
+          <h3><i class="fas fa-exclamation-triangle"></i> Weather Advisories</h3>
+          <div class="advisories-content">
+            <div class="advisory-item active">
+              <div class="advisory-header">
+                <i class="fas fa-umbrella"></i>
+                <span class="advisory-title">Heavy Rainfall Warning</span>
+                <span class="advisory-time">Until 6:00 PM</span>
+              </div>
+              <p class="advisory-description">Heavy rainfall expected in Metro Manila. Possible flooding in low-lying areas. Stay indoors and monitor local news.</p>
+            </div>
+            <div class="advisory-item">
+              <div class="advisory-header">
+                <i class="fas fa-wind"></i>
+                <span class="advisory-title">Strong Wind Advisory</span>
+                <span class="advisory-time">Until 8:00 PM</span>
+              </div>
+              <p class="advisory-description">Winds of 30-40 km/h expected. Secure loose objects and be cautious when driving.</p>
+            </div>
+            <div class="advisory-item">
+              <div class="advisory-header">
+                <i class="fas fa-sun"></i>
+                <span class="advisory-title">High UV Index</span>
+                <span class="advisory-time">Until 5:00 PM</span>
+              </div>
+              <p class="advisory-description">UV index is high. Wear protective clothing, sunscreen, and limit sun exposure between 10 AM and 4 PM.</p>
             </div>
           </div>
         </div>
@@ -460,194 +656,204 @@
     </div>
   </section>
 
+  <!-- Coordinate Validation Section -->
+  <section id="coordinate-validation" class="page-section">
+    <div class="validation-container">
+      <div class="validation-header">
+        <h2><i class="fas fa-map-marker-alt"></i> Coordinate Validation</h2>
+        <p>Validate and verify coordinates for all campus locations</p>
+      </div>
+
+      <div class="validation-controls">
+        <button id="validateCoordinates" class="run-btn primary">
+          <i class="fas fa-check-circle"></i> Validate All Coordinates
+        </button>
+        <button onclick="validationController.exportValidationReport()" class="run-btn secondary">
+          <i class="fas fa-download"></i> Export Report
+        </button>
+      </div>
+
+      <div class="validation-progress">
+        <div id="validationProgress" class="progress-bar"></div>
+      </div>
+
+      <div id="validationResults" class="validation-results">
+        <!-- Results will be populated here -->
+      </div>
+    </div>
+  </section>
+
   <section id="emergency-hub" class="page-section">
     <div class="emergency-container">
       <div class="emergency-header">
-        <h1><i class="fas fa-shield-alt"></i> Emergency Hub</h1>
-        <p class="emergency-subtitle">Comprehensive emergency response and preparedness resources</p>
-        <div class="emergency-disclaimer">
-          <i class="fas fa-info-circle"></i>
-          <small>This section uses mock data for demonstration purposes. In a real emergency, always contact official authorities and follow local emergency protocols.</small>
-        </div>
+        <h1><i class="fas fa-first-aid"></i> Emergency Hub</h1>
+        <p class="emergency-subtitle">Quick access to emergency resources, alerts, and evacuation procedures</p>
       </div>
 
       <div class="emergency-grid">
-        <!-- Emergency Alerts -->
-        <div class="emergency-card alerts-card">
-          <h3><i class="fas fa-exclamation-triangle"></i> Emergency Alerts</h3>
-          <div id="emergencyAlerts" class="alerts-container">
-            <div class="alert-item info">
-              <i class="fas fa-info-circle"></i>
-              <div class="alert-content">
-                <strong>System Status: Normal</strong>
-                <p>All emergency systems are operational. No active alerts at this time.</p>
-              </div>
+        <!-- Left Column -->
+        <div class="emergency-column left-column">
+          <!-- Emergency Alerts -->
+          <div class="card alerts-card">
+            <h3><i class="fas fa-exclamation-circle"></i> Emergency Alerts</h3>
+            <div class="alert-filters">
+              <button class="alert-filter active" data-filter="all">All</button>
+              <button class="alert-filter" data-filter="high">High Priority</button>
+              <button class="alert-filter" data-filter="warning">Warnings</button>
+              <button class="alert-filter" data-filter="info">Information</button>
+            </div>
+            <div id="emergencyAlerts" class="alerts-container">
+              <!-- Alerts will be populated here -->
             </div>
           </div>
-          <div class="alert-actions">
-            <button class="run-btn secondary" onclick="refreshAlerts()">
-              <i class="fas fa-sync-alt"></i> Refresh Alerts
-            </button>
-          </div>
-        </div>
 
-        <!-- Evacuation Routes -->
-        <div class="emergency-card routes-card">
-          <h3><i class="fas fa-route"></i> Evacuation Routes</h3>
-          <div class="campus-selector">
-            <label for="evacuationCampusSelect">Select Campus:</label>
-            <select id="evacuationCampusSelect">
-              <option value="dlsu">De La Salle University (DLSU - Taft)</option>
-              <option value="ust">University of Santo Tomas (UST - España)</option>
-              <option value="mapua_manila">Mapúa (Intramuros, Manila)</option>
-              <option value="mapua_makati">Mapúa (Makati, Pablo Ocampo)</option>
-              <option value="upd">UP Diliman (Quezon City)</option>
-            </select>
-          </div>
-          <div id="evacuationMap" class="evacuation-map"></div>
-          <div class="route-info">
-            <h4>Safe Evacuation Routes</h4>
-            <div id="routeList"></div>
-          </div>
-        </div>
+          <!-- Emergency Resources -->
+          <div class="card resources-card">
+            <h3><i class="fas fa-hand-holding-medical"></i> Emergency Resources</h3>
+            <div class="resources-grid">
+              <!-- First Aid Guide -->
+              <div class="resource-section">
+                <h4><i class="fas fa-medical-kit"></i> First Aid Guide</h4>
+                <div class="first-aid-tips">
+                  <div class="tip-item">
+                    <h5>Basic First Aid</h5>
+                    <ul>
+                      <li>Check the scene for safety</li>
+                      <li>Call for emergency assistance</li>
+                      <li>Care for the person until help arrives</li>
+                    </ul>
+                  </div>
+                  <div class="tip-item">
+                    <h5>Flood Safety</h5>
+                    <ul>
+                      <li>Avoid walking through floodwater</li>
+                      <li>Stay on higher ground</li>
+                      <li>Follow evacuation instructions</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
 
-        <!-- Emergency Contacts -->
-        <div class="emergency-card contacts-card">
-          <h3><i class="fas fa-phone"></i> Emergency Contacts</h3>
-          <div class="contact-tabs">
-            <button class="contact-tab active" data-contact="national">National</button>
-            <button class="contact-tab" data-contact="local">Local</button>
-          </div>
-          <div id="contactsContent" class="contacts-content">
-            <!-- Contacts will be populated by JS -->
-          </div>
-        </div>
-
-        <!-- Emergency Procedures -->
-        <div class="emergency-card procedures-card">
-          <h3><i class="fas fa-list-check"></i> Emergency Procedures</h3>
-          <div class="procedure-steps">
-            <div class="procedure-step">
-              <div class="step-number">1</div>
-              <div class="step-content">
-                <h4>Stay Calm & Assess</h4>
-                <p>Remain calm and assess the situation. Do not panic.</p>
-              </div>
-            </div>
-            <div class="procedure-step">
-              <div class="step-number">2</div>
-              <div class="step-content">
-                <h4>Follow Evacuation Routes</h4>
-                <p>Use designated evacuation routes and follow instructions from authorities.</p>
-              </div>
-            </div>
-            <div class="procedure-step">
-              <div class="step-number">3</div>
-              <div class="step-content">
-                <h4>Head to Safe Zones</h4>
-                <p>Move to the nearest safe zone or evacuation center.</p>
-              </div>
-            </div>
-            <div class="procedure-step">
-              <div class="step-number">4</div>
-              <div class="step-content">
-                <h4>Contact Emergency Services</h4>
-                <p>Call emergency hotlines if you need immediate assistance.</p>
+              <!-- Emergency Supplies -->
+              <div class="resource-section">
+                <h4><i class="fas fa-box-open"></i> Emergency Supplies</h4>
+                <div class="supplies-checklist">
+                  <div class="checklist-item">
+                    <input type="checkbox" id="supply1">
+                    <label for="supply1">First Aid Kit</label>
+                  </div>
+                  <div class="checklist-item">
+                    <input type="checkbox" id="supply2">
+                    <label for="supply2">Flashlight & Batteries</label>
+                  </div>
+                  <div class="checklist-item">
+                    <input type="checkbox" id="supply3">
+                    <label for="supply3">Emergency Food & Water</label>
+                  </div>
+                  <div class="checklist-item">
+                    <input type="checkbox" id="supply4">
+                    <label for="supply4">Emergency Contact List</label>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Resource Tracking -->
-        <div class="emergency-card resources-card">
-          <h3><i class="fas fa-boxes"></i> Resource Availability</h3>
-          <div class="resource-grid">
-            <div class="resource-item">
-              <i class="fas fa-home"></i>
-              <div class="resource-info">
-                <span class="resource-name">Evacuation Centers</span>
-                <span class="resource-status available">15 Available</span>
+        <!-- Center Column -->
+        <div class="emergency-column center-column">
+          <!-- Evacuation System -->
+          <div class="card evacuation-card">
+            <h3><i class="fas fa-route"></i> Evacuation System</h3>
+            <div class="campus-selector">
+              <label for="evacuationCampusSelect">Select Campus:</label>
+              <select id="evacuationCampusSelect" class="styled-select">
+                <!-- Campus options will be populated here -->
+              </select>
+            </div>
+            
+            <!-- Status Dashboard -->
+            <div class="evacuation-status">
+              <div class="status-item">
+                <i class="fas fa-users"></i>
+                <span class="status-label">Current Occupancy</span>
+                <span class="status-value" id="currentOccupancy">--</span>
+              </div>
+              <div class="status-item">
+                <i class="fas fa-door-open"></i>
+                <span class="status-label">Available Exits</span>
+                <span class="status-value" id="availableExits">--</span>
+              </div>
+              <div class="status-item">
+                <i class="fas fa-flag"></i>
+                <span class="status-label">Assembly Points</span>
+                <span class="status-value" id="assemblyPoints">--</span>
               </div>
             </div>
-            <div class="resource-item">
-              <i class="fas fa-utensils"></i>
-              <div class="resource-info">
-                <span class="resource-name">Food Supplies</span>
-                <span class="resource-status available">Well Stocked</span>
+
+            <!-- Interactive Map -->
+            <div class="map-container">
+              <div id="evacuationMap"></div>
+              <div class="map-controls">
+                <button id="showAllRoutes"><i class="fas fa-map-marked-alt"></i> All Routes</button>
+                <button id="showSafeRoutes"><i class="fas fa-shield-alt"></i> Safe Routes</button>
+                <button id="showAssemblyPoints"><i class="fas fa-flag"></i> Assembly Points</button>
               </div>
             </div>
-            <div class="resource-item">
-              <i class="fas fa-first-aid"></i>
-              <div class="resource-info">
-                <span class="resource-name">Medical Supplies</span>
-                <span class="resource-status available">Adequate</span>
-              </div>
-            </div>
-            <div class="resource-item">
-              <i class="fas fa-tshirt"></i>
-              <div class="resource-info">
-                <span class="resource-name">Clothing/Blankets</span>
-                <span class="resource-status limited">Limited Stock</span>
-              </div>
-            </div>
-          </div>
-          <div class="resource-actions">
-            <button class="run-btn secondary" onclick="updateResources()">
-              <i class="fas fa-sync-alt"></i> Update Status
-            </button>
+
+            <!-- Route Information -->
+            <div id="routeList" class="route-information"></div>
           </div>
         </div>
 
-        <!-- Emergency Kit Checklist -->
-        <div class="emergency-card kit-card">
-          <h3><i class="fas fa-toolbox"></i> Emergency Kit Checklist</h3>
-          <div class="kit-categories">
-            <div class="kit-category">
-              <h4>Essentials</h4>
-              <ul>
-                <li><input type="checkbox" id="water"> Drinking Water (1 gallon per person per day)</li>
-                <li><input type="checkbox" id="food"> Non-perishable Food (3-day supply)</li>
-                <li><input type="checkbox" id="radio"> Battery-powered Radio</li>
-                <li><input type="checkbox" id="flashlight"> Flashlight with extra batteries</li>
-                <li><input type="checkbox" id="firstaid"> First Aid Kit</li>
-              </ul>
-            </div>
-            <div class="kit-category">
-              <h4>Documents</h4>
-              <ul>
-                <li><input type="checkbox" id="id"> Identification documents</li>
-                <li><input type="checkbox" id="insurance"> Insurance papers</li>
-                <li><input type="checkbox" id="cash"> Cash in small denominations</li>
-                <li><input type="checkbox" id="contacts"> Emergency contact list</li>
-              </ul>
-            </div>
-            <div class="kit-category">
-              <h4>Personal Items</h4>
-              <ul>
-                <li><input type="checkbox" id="clothes"> Extra clothing</li>
-                <li><input type="checkbox" id="blanket"> Blanket or sleeping bag</li>
-                <li><input type="checkbox" id="toiletries"> Personal hygiene items</li>
-                <li><input type="checkbox" id="medication"> Prescription medications</li>
-              </ul>
+        <!-- Right Column -->
+        <div class="emergency-column right-column">
+          <!-- Emergency Contacts -->
+          <div class="card contacts-card">
+            <h3><i class="fas fa-phone-alt"></i> Emergency Contacts</h3>
+            <div id="contactsContent" class="contacts-container">
+              <!-- Contacts will be populated here -->
             </div>
           </div>
-          <div class="kit-actions">
-            <button class="run-btn secondary" onclick="printChecklist()">
-              <i class="fas fa-print"></i> Print Checklist
-            </button>
-            <button class="run-btn secondary" onclick="resetChecklist()">
-              <i class="fas fa-undo"></i> Reset
-            </button>
+
+          <!-- Emergency Procedures -->
+          <div class="card procedures-card">
+            <h3><i class="fas fa-clipboard-list"></i> Emergency Procedures</h3>
+            <div class="procedures-tabs">
+              <button class="procedure-tab active" data-tab="flood">Flood</button>
+              <button class="procedure-tab" data-tab="fire">Fire</button>
+              <button class="procedure-tab" data-tab="earthquake">Earthquake</button>
+            </div>
+            <div class="procedure-content active" id="floodProcedure">
+              <ol class="procedure-steps">
+                <li>Stay calm and assess the situation</li>
+                <li>Monitor emergency alerts and announcements</li>
+                <li>Follow evacuation routes to higher ground</li>
+                <li>Avoid walking through floodwater</li>
+                <li>Proceed to designated assembly points</li>
+                <li>Wait for further instructions from authorities</li>
+              </ol>
+            </div>
+            <div class="procedure-content" id="fireProcedure">
+              <!-- Fire procedure content -->
+            </div>
+            <div class="procedure-content" id="earthquakeProcedure">
+              <!-- Earthquake procedure content -->
+            </div>
           </div>
         </div>
       </div>
 
+      <!-- Quick Action Buttons -->
       <div class="emergency-actions">
-        <button class="run-btn primary" onclick="activateEmergencyMode()">
-          <i class="fas fa-exclamation-triangle"></i> Activate Emergency Mode
+        <button class="action-btn primary" onclick="reportEmergency()">
+          <i class="fas fa-exclamation-triangle"></i> Report Emergency
         </button>
-        <button class="run-btn secondary" onclick="contactEmergency()">
-          <i class="fas fa-phone"></i> Contact Emergency Services
+        <button class="action-btn" onclick="downloadEmergencyPlan()">
+          <i class="fas fa-download"></i> Download Emergency Plan
+        </button>
+        <button class="action-btn" onclick="showEmergencyTraining()">
+          <i class="fas fa-graduation-cap"></i> Emergency Training
         </button>
       </div>
     </div>
@@ -945,7 +1151,44 @@
     </div>
   </div>
 
+  <!-- Coordinate Validation Modal -->
+  <div id="validationModal" class="modal">
+    <div class="modal-content large-modal">
+      <span class="close">&times;</span>
+      <div class="validation-container">
+        <div class="validation-header">
+          <h2><i class="fas fa-map-marker-alt"></i> Coordinate Validation</h2>
+          <p>Validating coordinates for selected campus</p>
+        </div>
+
+        <div class="validation-progress">
+          <div id="modalValidationProgress" class="progress-bar"></div>
+        </div>
+
+        <div id="modalValidationResults" class="validation-results">
+          <!-- Results will be populated here -->
+        </div>
+
+        <div class="validation-actions" style="margin-top: 20px; text-align: right;">
+          <button onclick="validationController.exportValidationReport()" class="run-btn secondary">
+            <i class="fas fa-download"></i> Export Report
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase and auth functionality removed -->
+  
   <script src="data.js"></script>
+  <script src="services/geocodingService.js"></script>
+  <script src="scripts/weatherBulletin.js"></script>
+  <script src="scripts/weatherInit.js"></script>
+  <script src="scripts/emergencyContacts.js"></script>
+  <script src="scripts/evacuationMap.js"></script>
+  <script src="scripts/emergencyProcedures.js"></script>
   <script src="script.js"></script>
+  <script src="validation.js"></script>
+  <script src="controllers/authController.js"></script>
 </body>
 </html>
